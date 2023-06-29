@@ -41,10 +41,12 @@ public class UserRepositoryImpl implements UserRepository {
             oldUser.setEmail(user.getEmail());
         }
 
+
         users.put(userId, oldUser);
         return oldUser;
 
     }
+
 
     @Override
     public List<User> getAllUsers() {

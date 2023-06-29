@@ -59,7 +59,7 @@ public class ItemService {
             throw new ValidateException("UserId не может быть null");
         }
 
-        if (oldItem.getOwner().getId() != userId) {
+        if (!oldItem.getOwner().getId().equals(userId)) {
             log.info("Нельзя обновить вещь, принадлежащую другому пользователю");
             throw new ForbiddenException("Нельзя обновить вещь, принадлежащую другому пользователю");
 

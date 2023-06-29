@@ -31,7 +31,7 @@ public class UserService {
 
     public User update(Long userId, User user) {
         User oldUser = userRepository.getUserByEmail(user.getEmail());
-        if (oldUser != (null) && oldUser.getId() != userId) {
+        if (oldUser != (null) && !oldUser.getId().equals(userId)) {
             log.info("Такой email уже существует");
             throw new DuplicateEmailException("Пользователь с таким email уже зарегистрирован");
         }
