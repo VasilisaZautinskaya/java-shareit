@@ -16,7 +16,6 @@ public class UserRepositoryImpl implements UserRepository {
     HashMap<Long, User> users = new HashMap<>();
     long idSequence;
 
-
     @Override
     public User getUser(Long userId) {
         return users.get(userId);
@@ -25,7 +24,6 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void remove(long userId) {
         users.remove(userId);
-
 
     }
 
@@ -43,12 +41,10 @@ public class UserRepositoryImpl implements UserRepository {
             oldUser.setEmail(user.getEmail());
         }
 
-
         users.put(userId, oldUser);
         return oldUser;
 
     }
-
 
     @Override
     public List<User> getAllUsers() {

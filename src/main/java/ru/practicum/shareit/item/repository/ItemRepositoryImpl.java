@@ -74,11 +74,7 @@ public class ItemRepositoryImpl implements ItemRepository {
                     && item.getAvailable() == true) {
                 searchedItems.add(item);
             }
-
-
         }
-
-
         return searchedItems;
     }
 
