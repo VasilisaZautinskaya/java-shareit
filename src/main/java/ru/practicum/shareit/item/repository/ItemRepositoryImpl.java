@@ -45,12 +45,12 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item createItem(Item item) {
-        Long newId = generatedId();
         if (item.getId() == null) {
+            Long newId = generatedId();
             item.setId(newId);
         }
 
-        items.put(newId, item);
+        items.put(item.getId(), item);
         return item;
     }
 

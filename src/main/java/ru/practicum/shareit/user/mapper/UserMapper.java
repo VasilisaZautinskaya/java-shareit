@@ -7,7 +7,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+
 public class UserMapper {
     public static UserDto toUserDto(User user) {
         return UserDto.builder()
