@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.mapper;
 
 
-
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -21,7 +20,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public Item toItem(ItemDto itemDto) {
+    public static Item toItem(ItemDto itemDto) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
@@ -30,7 +29,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public List<ItemDto> toItemDtoList(List<Item> items) {
+    public static List<ItemDto> toItemDtoList(List<Item> items) {
         List<ItemDto> dtolist = new ArrayList<>();
         for (Item item : items) {
             ItemDto itemDto = toItemDto(item);

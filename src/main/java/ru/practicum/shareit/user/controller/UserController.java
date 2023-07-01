@@ -15,15 +15,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserMapper userMapper;
+
 
 
     @PostMapping
     public @ResponseBody UserDto createUser(@RequestBody UserDto userDto) {
 
-        User user = userMapper.toUser(userDto);
+        User user = UserMapper.toUser(userDto);
         User createdUser = userService.createUser(user);
-        UserDto createdUserDto = userMapper.toUserDto(createdUser);
+        UserDto createdUserDto = UserMapper.toUserDto(createdUser);
 
         return createdUserDto;
     }
@@ -32,7 +32,7 @@ public class UserController {
     public @ResponseBody UserDto getUserById(@PathVariable Long userId) {
 
         User getdUser = userService.getUserById(userId);
-        UserDto getdUserDto = userMapper.toUserDto(getdUser);
+        UserDto getdUserDto = UserMapper.toUserDto(getdUser);
 
         return getdUserDto;
     }
@@ -41,9 +41,9 @@ public class UserController {
     public @ResponseBody UserDto update(@PathVariable Long userId,
                                         @RequestBody UserDto userDto) {
 
-        User user = userMapper.toUser(userDto);
+        User user = UserMapper.toUser(userDto);
         User updateUser = userService.update(userId, user);
-        UserDto updateUserDto = userMapper.toUserDto(updateUser);
+        UserDto updateUserDto = UserMapper.toUserDto(updateUser);
 
         return updateUserDto;
     }
