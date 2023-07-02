@@ -17,11 +17,11 @@ import java.util.Date;
 @NoArgsConstructor
 @Slf4j
 public class Booking {
-    Long id;
-    Date start;
-    Date end;
-    Item item;
-    User booker;
+    private Long id;
+    private Date start;
+    private Date end;
+    private Item item;
+    private User booker;
 
 
 }

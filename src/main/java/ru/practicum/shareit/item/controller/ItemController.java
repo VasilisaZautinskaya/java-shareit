@@ -15,15 +15,15 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
-    private final ItemMapper itemMapper;
+
 
     @PostMapping
     public @ResponseBody ItemDto createItem(@RequestBody ItemDto itemDto,
                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
 
-        Item item = itemMapper.toItem(itemDto);
+        Item item = ItemMapper.toItem(itemDto);
         Item createdItem = itemService.createItem(item, userId);
-        ItemDto createdItemDto = itemMapper.toItemDto(createdItem);
+        ItemDto createdItemDto = ItemMapper.toItemDto(createdItem);
         return createdItemDto;
     }
 
@@ -33,7 +33,7 @@ public class ItemController {
 
 
         Item getItem = itemService.getItemById(itemId);
-        ItemDto getItemDto = itemMapper.toItemDto(getItem);
+        ItemDto getItemDto = ItemMapper.toItemDto(getItem);
         return getItemDto;
     }
 
@@ -41,9 +41,9 @@ public class ItemController {
     public @ResponseBody ItemDto update(@PathVariable Long itemId,
                                         @RequestBody ItemDto itemDto,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
-        Item item = itemMapper.toItem(itemDto);
+        Item item = ItemMapper.toItem(itemDto);
         Item updatedItem = itemService.update(itemId, item, userId);
-        ItemDto updatedItemDto = itemMapper.toItemDto(updatedItem);
+        ItemDto updatedItemDto = ItemMapper.toItemDto(updatedItem);
 
         return updatedItemDto;
     }
@@ -55,13 +55,13 @@ public class ItemController {
 
     @GetMapping
     public @ResponseBody List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        List<ItemDto> allItemDto = itemMapper.toItemDtoList(itemService.getAll(userId));
+        List<ItemDto> allItemDto = ItemMapper.toItemDtoList(itemService.getAll(userId));
         return allItemDto;
     }
 
     @GetMapping("/search")
     public @ResponseBody List<ItemDto> findItemByParams(@RequestParam String text) {
-        List<ItemDto> items = itemMapper.toItemDtoList(itemService.getItemsByText(text));
+        List<ItemDto> items = ItemMapper.toItemDtoList(itemService.getItemsByText(text));
         return items;
     }
 
