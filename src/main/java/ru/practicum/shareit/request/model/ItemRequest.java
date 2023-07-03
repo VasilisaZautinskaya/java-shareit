@@ -1,19 +1,27 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
 @Slf4j
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "requests")
 public class ItemRequest {
+    @Id
+    @Column(name = "id")
     private Long id;
+    @Column(name = "description")
     private String description;
     private User requestor;
     private Date created;
