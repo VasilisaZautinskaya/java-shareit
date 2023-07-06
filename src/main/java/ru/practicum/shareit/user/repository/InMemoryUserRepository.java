@@ -12,44 +12,24 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class UserRepositoryImpl implements UserRepository {
+public class InMemoryUserRepository implements UserRepository {
     HashMap<Long, User> users = new HashMap<>();
     long idSequence;
 
     @Override
-    public User getUser(Long userId) {
+    public User findById(Long userId) {
+
         return users.get(userId);
     }
 
     @Override
-    public void remove(long userId) {
+    public void deleteById(long userId) {
         users.remove(userId);
 
     }
 
-
     @Override
-    public User updateUser(Long userId, User user) {
-        User oldUser = getUser(userId);
-        if (userId == null) {
-            return user;
-        }
-        if (user.getName() != null) {
-            oldUser.setName(user.getName());
-        }
-        if (user.getEmail() != null) {
-            oldUser.setEmail(user.getEmail());
-        }
-
-
-        users.put(userId, oldUser);
-        return oldUser;
-
-    }
-
-
-    @Override
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
 
@@ -77,7 +57,7 @@ public class UserRepositoryImpl implements UserRepository {
         return null;
     }
 
-    @Override
+
     public long generatedId() {
         return ++idSequence;
     }

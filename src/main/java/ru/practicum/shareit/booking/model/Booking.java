@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,13 +11,12 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import java.util.Date;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
+@Entity
 @Table(name = "bookings")
 public class Booking {
     @Id
@@ -30,12 +30,10 @@ public class Booking {
     @Column(name = "end_time")
     private Date end;
 
-    @Column(name = "item_id")
-    @OneToOne(mappedBy = "id")
+    @OneToOne
     private Item item;
 
-    @Column(name = "booker_id")
-    @OneToOne(mappedBy = "id", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne
     private User booker;
 
 

@@ -10,15 +10,15 @@ public interface ItemRepository {
 
     Item createItem(Item item);
 
-    Item update(Item item);
+    Item save(Item item);
 
-    void remove(long itemId);
+    void delete(long itemId);
 
-    List<Item> getAll(Long userId);
+    List<Item> findAll(Long userId);
 
-    long generatedId();
 
-    Item getItem(Long itemId);
 
-    List<Item> getItemByText(String text);
+    Item findById(Long itemId);
+
+    List<Item> findByText(String text);
 }

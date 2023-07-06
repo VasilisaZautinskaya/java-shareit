@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS items
     name        varchar(255),
     description varchar(1500),
     available   boolean,
-    ownerner_id integer,
+    owner_id integer,
     request_id  integer
 );
 
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS comments
 
 
 ALTER TABLE items
-    ADD FOREIGN KEY (ownerner_id) REFERENCES users (id);
+    ADD FOREIGN KEY (owner_id) REFERENCES users (id);
 ALTER TABLE bookings
     ADD FOREIGN KEY (item_id) REFERENCES items (id);
 ALTER TABLE bookings

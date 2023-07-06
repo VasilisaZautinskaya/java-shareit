@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemService {
     ItemRepository itemRepository;
-    UserRepository userRepository;
+    UserRepository inMemoryUserRepository;
 
 
     public Item createItem(Item item, Long userId) {
@@ -28,7 +28,7 @@ public class ItemService {
             log.info("UserId не может быть null");
             throw new ValidateException("UserId не может быть null");
         }
-        User user = userRepository.getUser(userId);
+        User user = inMemoryUserRepository.findById(userId);
         if (user == null) {
             log.info("Такой пользователь не найден");
             throw new NotFoundException("Такой пользователь не найден");
@@ -52,7 +52,7 @@ public class ItemService {
     }
 
     public Item update(Long itemId, Item item, Long userId) {
-        Item oldItem = itemRepository.getItem(itemId);
+        Item oldItem = itemRepository.findById(itemId);
 
         if (userId == null) {
             log.info("UserId не может быть null");
@@ -77,27 +77,27 @@ public class ItemService {
             oldItem.setDescription(item.getDescription());
         }
 
-        return itemRepository.update(oldItem);
+        return itemRepository.save(oldItem);
     }
 
 
     public void remove(long itemId) {
 
-        itemRepository.remove(itemId);
+        itemRepository.delete(itemId);
 
     }
 
 
     public Item getItemById(Long itemId) {
-        return itemRepository.getItem(itemId);
+        return itemRepository.findById(itemId);
     }
 
     public List<Item> getAll(Long userId) {
-        return itemRepository.getAll(userId);
+        return itemRepository.findAll(userId);
     }
 
     public List<Item> getItemsByText(String text) {
 
-        return itemRepository.getItemByText(text);
+        return itemRepository.findByText(text);
     }
 }

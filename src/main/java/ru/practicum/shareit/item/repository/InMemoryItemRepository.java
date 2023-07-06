@@ -10,12 +10,12 @@ import java.util.List;
 
 
 @Component
-public class ItemRepositoryImpl implements ItemRepository {
+public class InMemoryItemRepository implements ItemRepository {
     HashMap<Long, Item> items = new HashMap<>();
     long idSequence;
 
     @Override
-    public Item update(Item item) {
+    public Item save(Item item) {
 
         if (item.getId() == null) {
             return item;
@@ -26,12 +26,12 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public void remove(long itemId) {
+    public void delete(long itemId) {
         items.remove(itemId);
     }
 
     @Override
-    public List<Item> getAll(Long userId) {
+    public List<Item> findAll(Long userId) {
         ArrayList<Item> suitableItem = new ArrayList<>();
         for (Item item : items.values()
         ) {
@@ -55,14 +55,14 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
 
-    @Override
+
     public long generatedId() {
         return ++idSequence;
 
     }
 
     @Override
-    public List<Item> getItemByText(String text) {
+    public List<Item> findByText(String text) {
         ArrayList<Item> searchedItems = new ArrayList<>();
         if (text.isEmpty() && text.length() == 0) {
             return new ArrayList<>();
@@ -79,7 +79,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item getItem(Long itemId) {
+    public Item findById(Long itemId) {
         return items.get(itemId);
     }
 }
