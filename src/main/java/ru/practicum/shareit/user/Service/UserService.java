@@ -66,24 +66,6 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    private void validateNewUser(User user) {
-
-        if (user.getId() == null) {
-            log.error("Пользователь с таким id не найден");
-            throw new ValidateException("Неправильный id пользователя");
-        }
-        if (user.getEmail() == null) {
-            log.error("Пользователь с таким Email не найден");
-            throw new ValidateException("Неправильный email пользователя");
-        }
-
-        if (user.getName() == null) {
-            log.error("Неправильное имя пользователя");
-            throw new ValidateException("Неправильное имя пользователя");
-        }
-    }
-
-
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
