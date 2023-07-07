@@ -34,7 +34,7 @@ public class DbItemRepository implements ItemRepository {
         return jpaItemRepository.findById(itemId).orElse(null);
     }
     @Override
-    public List<Item> findByText(String text) {
-        return jpaItemRepository.findByText(text);
+    public List<Item> getSearch(String text) {
+        return jpaItemRepository.getSearch(text);
     }
 }

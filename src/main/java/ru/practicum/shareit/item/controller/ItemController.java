@@ -32,7 +32,7 @@ public class ItemController {
                                              @PathVariable Long itemId) {
 
 
-        Item getItem = itemService.getItemById(itemId);
+        Item getItem = itemService.findById(itemId);
         ItemDto getItemDto = ItemMapper.toItemDto(getItem);
         return getItemDto;
     }
@@ -42,7 +42,7 @@ public class ItemController {
                                         @RequestBody ItemDto itemDto,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
         Item item = ItemMapper.toItem(itemDto);
-        Item updatedItem = itemService.update(itemId, item, userId);
+        Item updatedItem = itemService.save(itemId, item, userId);
         ItemDto updatedItemDto = ItemMapper.toItemDto(updatedItem);
 
         return updatedItemDto;
@@ -50,12 +50,12 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@PathVariable Long itemId) {
-        itemService.remove(itemId);
+        itemService.deleteById(itemId);
     }
 
     @GetMapping
     public @ResponseBody List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        List<ItemDto> allItemDto = ItemMapper.toItemDtoList(itemService.getAll(userId));
+        List<ItemDto> allItemDto = ItemMapper.toItemDtoList(itemService.findAll(userId));
         return allItemDto;
     }
 

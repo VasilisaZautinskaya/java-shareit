@@ -51,7 +51,7 @@ public class ItemService {
 
     }
 
-    public Item update(Long itemId, Item item, Long userId) {
+    public Item save(Long itemId, Item item, Long userId) {
         Item oldItem = itemRepository.findById(itemId);
 
         if (userId == null) {
@@ -81,23 +81,23 @@ public class ItemService {
     }
 
 
-    public void remove(long itemId) {
+    public void deleteById(long itemId) {
 
         itemRepository.delete(itemId);
 
     }
 
 
-    public Item getItemById(Long itemId) {
+    public Item findById(Long itemId) {
         return itemRepository.findById(itemId);
     }
 
-    public List<Item> getAll(Long userId) {
+    public List<Item> findAll(Long userId) {
         return itemRepository.findAll(userId);
     }
 
     public List<Item> getItemsByText(String text) {
 
-        return itemRepository.findByText(text);
+        return itemRepository.getSearch(text);
     }
 }

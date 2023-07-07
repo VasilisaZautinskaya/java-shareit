@@ -62,7 +62,7 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public List<Item> findByText(String text) {
+    public List<Item> getSearch(String text) {
         ArrayList<Item> searchedItems = new ArrayList<>();
         if (text.isEmpty() && text.length() == 0) {
             return new ArrayList<>();

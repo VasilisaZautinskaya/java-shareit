@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
+
 
 @Data
 @Slf4j
@@ -22,12 +23,15 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
     @Column(name = "description")
     private String description;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "requestor_id", referencedColumnName = "id")
     private User requestor;
+
     @Column(name = "created")
-    private Date created;
+    private LocalDate created;
 
 }
