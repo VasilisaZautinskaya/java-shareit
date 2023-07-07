@@ -26,8 +26,10 @@ public class Item {
     @Column(name = "description")
     private String description;
     @ManyToOne
+    @JoinColumn(name = "id")
     private User owner;
     @ManyToOne
+    @JoinColumn(name = "id")
     private ItemRequest request;
     @Column(name = "is_available")
     private Boolean available;

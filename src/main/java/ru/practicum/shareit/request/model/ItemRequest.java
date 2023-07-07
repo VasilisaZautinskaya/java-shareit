@@ -22,13 +22,11 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @Column(name = "description")
     private String description;
-
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User requestor;
-
     @Column(name = "created")
     private Date created;
 

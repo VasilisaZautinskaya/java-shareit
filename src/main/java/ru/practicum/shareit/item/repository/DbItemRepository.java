@@ -17,30 +17,24 @@ public class DbItemRepository implements ItemRepository {
     public Item createItem(Item item) {
         return null;
     }
-
     @Override
     public Item save(Item item) {
         return jpaItemRepository.save(item);
     }
-
     @Override
     public void delete(long itemId) {
         jpaItemRepository.deleteById(itemId);
     }
-
     @Override
     public List<Item> findAll(Long userId) {
-        return findAll(userId);
+        return jpaItemRepository.findAll();
     }
-
-
     @Override
     public Item findById(Long itemId) {
-        return findById(itemId);
+        return jpaItemRepository.findById(itemId).orElse(null);
     }
-
     @Override
     public List<Item> findByText(String text) {
-        return findByText(text);
+        return jpaItemRepository.findByText(text);
     }
 }

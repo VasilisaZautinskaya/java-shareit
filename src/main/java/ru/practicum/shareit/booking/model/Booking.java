@@ -31,9 +31,11 @@ public class Booking {
     private Date end;
 
     @OneToOne
+    @JoinColumn(name = "id")
     private Item item;
 
     @OneToOne
+    @JoinColumn(name = "id")
     private User booker;
 
 

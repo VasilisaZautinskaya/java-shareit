@@ -5,7 +5,7 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
-@Repository
+
 public interface ItemRepository {
 
     Item createItem(Item item);
