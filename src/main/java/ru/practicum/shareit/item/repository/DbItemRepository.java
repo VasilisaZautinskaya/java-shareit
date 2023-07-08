@@ -13,26 +13,27 @@ public class DbItemRepository implements ItemRepository {
     @Autowired
     JpaItemRepository jpaItemRepository;
 
-    @Override
-    public Item createItem(Item item) {
-        return null;
-    }
+
     @Override
     public Item save(Item item) {
         return jpaItemRepository.save(item);
     }
+
     @Override
-    public void delete(long itemId) {
+    public void deleteById(long itemId) {
         jpaItemRepository.deleteById(itemId);
     }
+
     @Override
     public List<Item> findAll(Long userId) {
-        return jpaItemRepository.findAll();
+        return jpaItemRepository.findAllByOwnerId(userId);
     }
+
     @Override
     public Item findById(Long itemId) {
         return jpaItemRepository.findById(itemId).orElse(null);
     }
+
     @Override
     public List<Item> getSearch(String text) {
         return jpaItemRepository.getSearch(text);

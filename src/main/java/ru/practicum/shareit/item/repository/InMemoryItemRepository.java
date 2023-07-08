@@ -16,17 +16,16 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public Item save(Item item) {
-
+        Long newId = generatedId();
         if (item.getId() == null) {
-            return item;
+            item.setId(newId);
         }
-
-        items.put(item.getId(), item);
+        items.put(newId, item);
         return item;
     }
 
     @Override
-    public void delete(long itemId) {
+    public void deleteById(long itemId) {
         items.remove(itemId);
     }
 
@@ -42,19 +41,6 @@ public class InMemoryItemRepository implements ItemRepository {
         }
         return suitableItem;
     }
-
-    @Override
-    public Item createItem(Item item) {
-        if (item.getId() == null) {
-            Long newId = generatedId();
-            item.setId(newId);
-        }
-
-        items.put(item.getId(), item);
-        return item;
-    }
-
-
 
     public long generatedId() {
         return ++idSequence;

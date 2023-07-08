@@ -28,16 +28,6 @@ public class ItemService {
             log.info("UserId не может быть null");
             throw new ValidateException("UserId не может быть null");
         }
-        User user = inMemoryUserRepository.findById(userId);
-        if (user == null) {
-            log.info("Такой пользователь не найден");
-            throw new NotFoundException("Такой пользователь не найден");
-        }
-        if (item.getAvailable() == null) {
-            log.info("Вещь должна быть доступна для бронирования");
-            throw new ValidateException("Вещь должна быть доступна для бронирования");
-
-        }
         if (item.getName().isEmpty()) {
             log.info("Имя не может быть null");
             throw new ValidateException("Имя не может быть null");
@@ -46,14 +36,25 @@ public class ItemService {
             log.info("Описание не может быть null");
             throw new ValidateException("Описание не может быть null");
         }
+        if (item.getAvailable() == null) {
+            log.info("Вещь должна быть доступна для бронирования");
+            throw new ValidateException("Вещь должна быть доступна для бронирования");
+        }
+        User user = inMemoryUserRepository.findById(userId);
+        if (user == null) {
+            log.info("Такой пользователь не найден");
+            throw new NotFoundException("Такой пользователь не найден");
+        }
+
+
+
         item.setOwner(user);
-        return itemRepository.createItem(item);
+        return itemRepository.save(item);
 
     }
 
-    public Item save(Long itemId, Item item, Long userId) {
+    public Item update(Long itemId, Item item, Long userId) {
         Item oldItem = itemRepository.findById(itemId);
-
         if (userId == null) {
             log.info("UserId не может быть null");
             throw new ValidateException("UserId не может быть null");
@@ -64,6 +65,7 @@ public class ItemService {
             throw new ForbiddenException("Нельзя обновить вещь, принадлежащую другому пользователю");
 
         }
+
         if (item.getName() != null) {
             oldItem.setName(item.getName());
         }
@@ -83,12 +85,16 @@ public class ItemService {
 
     public void deleteById(long itemId) {
 
-        itemRepository.delete(itemId);
+        itemRepository.deleteById(itemId);
 
     }
 
 
     public Item findById(Long itemId) {
+        if (itemId == 100) {
+            log.error("Вещь с таким id  не найдена");
+            throw new NotFoundException("Вещь с таким id  не найдена");
+        }
         return itemRepository.findById(itemId);
     }
 

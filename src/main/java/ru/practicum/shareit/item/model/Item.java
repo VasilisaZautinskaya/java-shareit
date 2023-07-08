@@ -36,7 +36,7 @@ public class Item {
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private ItemRequest request;
 
-    @Column(name = "is_available")
+    @Column(name = "available")
     private Boolean available;
 
 

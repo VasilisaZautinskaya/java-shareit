@@ -7,15 +7,11 @@ import java.util.List;
 
 public interface ItemRepository {
 
-    Item createItem(Item item);
-
     Item save(Item item);
 
-    void delete(long itemId);
+    void deleteById(long itemId);
 
     List<Item> findAll(Long userId);
-
-
 
     Item findById(Long itemId);
 

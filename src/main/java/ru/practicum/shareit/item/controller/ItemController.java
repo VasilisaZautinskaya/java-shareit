@@ -31,7 +31,6 @@ public class ItemController {
     public @ResponseBody ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @PathVariable Long itemId) {
 
-
         Item getItem = itemService.findById(itemId);
         ItemDto getItemDto = ItemMapper.toItemDto(getItem);
         return getItemDto;
@@ -42,7 +41,7 @@ public class ItemController {
                                         @RequestBody ItemDto itemDto,
                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
         Item item = ItemMapper.toItem(itemDto);
-        Item updatedItem = itemService.save(itemId, item, userId);
+        Item updatedItem = itemService.update(itemId, item, userId);
         ItemDto updatedItemDto = ItemMapper.toItemDto(updatedItem);
 
         return updatedItemDto;
