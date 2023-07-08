@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -26,10 +27,10 @@ public class Booking {
     private Long id;
 
     @Column(name = "start_date")
-    private LocalDate start;
+    private LocalDateTime start;
 
-    @Column(name = "end_time")
-    private LocalDate end;
+    @Column(name = "end_date")
+    private LocalDateTime end;
 
     @OneToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
@@ -38,6 +39,10 @@ public class Booking {
     @OneToOne
     @JoinColumn(name = "booker_id", referencedColumnName = "id")
     private User booker;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
 
 
 }
