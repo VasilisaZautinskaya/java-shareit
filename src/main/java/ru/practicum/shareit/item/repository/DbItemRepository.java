@@ -36,6 +36,7 @@ public class DbItemRepository implements ItemRepository {
 
     @Override
     public List<Item> getSearch(String text) {
+
         return jpaItemRepository.getSearch(text);
     }
 }

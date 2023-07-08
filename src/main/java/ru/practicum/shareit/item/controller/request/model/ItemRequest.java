@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.model;
+package ru.practicum.shareit.item.controller.request.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

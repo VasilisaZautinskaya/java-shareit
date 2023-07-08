@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,8 +23,8 @@ public class ItemService {
     ItemRepository itemRepository;
     UserRepository inMemoryUserRepository;
 
-
     public Item createItem(Item item, Long userId) {
+
         if (userId == null) {
             log.info("UserId не может быть null");
             throw new ValidateException("UserId не может быть null");
@@ -45,8 +46,6 @@ public class ItemService {
             log.info("Такой пользователь не найден");
             throw new NotFoundException("Такой пользователь не найден");
         }
-
-
 
         item.setOwner(user);
         return itemRepository.save(item);
@@ -84,9 +83,7 @@ public class ItemService {
 
 
     public void deleteById(long itemId) {
-
         itemRepository.deleteById(itemId);
-
     }
 
 
@@ -103,7 +100,9 @@ public class ItemService {
     }
 
     public List<Item> getItemsByText(String text) {
-
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
         return itemRepository.getSearch(text);
     }
 }
