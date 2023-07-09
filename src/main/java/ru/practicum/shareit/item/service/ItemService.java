@@ -3,17 +3,23 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
 
 
 @Service
@@ -22,6 +28,11 @@ import java.util.List;
 public class ItemService {
     ItemRepository itemRepository;
     UserRepository inMemoryUserRepository;
+
+    JpaBookingRepository jpaBookingRepository;
+
+    CommentRepository commentRepository;
+
 
     public Item createItem(Item item, Long userId) {
 
@@ -104,5 +115,30 @@ public class ItemService {
             return new ArrayList<>();
         }
         return itemRepository.getSearch(text);
+    }
+
+    public Comment postComment(Long itemId, Long userId, Comment comment) {
+        if (userId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+        User user = inMemoryUserRepository.findById(userId);
+        if (itemId == null) {
+            log.error("Вещь с таким id  не найдена");
+            throw new NotFoundException("Вещь с таким id  не найдена");
+        }
+        Item item = findById(itemId);
+        if (jpaBookingRepository.findAllByItemIdAndBookerIdAndStatusEqualsAndEndIsBefore(itemId,
+                userId, APPROVED,
+                LocalDateTime.now()).isEmpty()) {
+            log.info("Пользователь не может оставить комментарий, так как не бронировал вещь или же не завершил аренду прошлой вещи.");
+            throw new ValidateException("Пользователь не может оставить комментарий, так как не бронировал вещь или же не завершил аренду прошлой вещи.");
+
+        }
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
+        return  commentRepository.save(comment);
+
     }
 }

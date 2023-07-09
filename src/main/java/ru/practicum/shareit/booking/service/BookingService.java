@@ -5,12 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.InMemoryUserRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -18,33 +24,74 @@ import ru.practicum.shareit.user.repository.UserRepository;
 public class BookingService {
 
     JpaBookingRepository jpaBookingRepository;
+    UserRepository userRepository;
     ItemRepository itemRepository;
-    InMemoryUserRepository inMemoryUserRepository;
 
     public Booking create(Booking booking, Long userId) {
         if (userId == null) {
             log.info("UserId не может быть null");
-            throw new ValidateException("UserId не может быть null");
-        }
-        if (booking.getBooker() == null) {
-            log.info("Пользователь не может быть null");
-            throw new ValidateException("Пользователь не может быть null");
-        }
-        if (booking.getEnd().equals(0)){
-            log.info("Время должно быть указано");
-            throw new ValidateException("Время должно быть указано");
-        }
-        if (booking.getItem() == null){
-            log.info("Вещь не может быть null");
-            throw new ValidateException("Вещь не может быть null");
-        }
-        User user = inMemoryUserRepository.findById(userId);
-        if (user == null) {
-            log.info("Такой пользователь не найден");
-            throw new NotFoundException("Такой пользователь не найден");
+            throw new NotFoundException("UserId не может быть null");
         }
 
+        if (booking.getEnd() == null) {
+            log.info("Дата окончания бронирования не может быть null");
+            throw new ValidateException("Дата окончания бронирования не может быть null");
+        }
+        if (booking.getStart() == null) {
+            log.info("Дата начала бронирования не может быть null");
+            throw new ValidateException("Дата начала бронирования не может быть null");
+        }
+        if (booking.getEnd().isBefore(booking.getStart())) {
+            log.info("Дата окончания бронирования не может быть  раньше начала бронирования");
+            throw new ValidateException("Дата окончания бронирования не может быть  раньше начала бронирования");
+        }
+        if (booking.getItem() == null) {
+            log.info("Такая вещь не найдена");
+            throw new ValidateException("Такая вещь не найдена");
+        }
+        if (booking.getItem().getId() == null) {
+            log.info("Такая вещь не найдена");
+            throw new NotFoundException("Такая вещь не найдена");
+        }
+
+        if (booking.getItem().getAvailable() == null) {
+            log.info("Вы не можете забронировать эту вещь");
+            throw new ValidateException("Вы не можете забронировать эту вещь");
+        }
+        if (booking.getBooker() == null) {
+            log.info("Такая вещь не найдена");
+            throw new ValidateException("Такая вещь не найдена");
+        }
+        
 
         return jpaBookingRepository.save(booking);
     }
+
+    public Booking findById(Long bookingId, Long userId) {
+        Booking booking = validateBooking(bookingId);
+        if (Objects.equals(booking.getBooker().getId(), userId)
+                || Objects.equals(booking.getItem().getOwner().getId(), userId)) {
+            return booking;
+        }
+        log.info("Бронирование не найдено");
+        throw new NotFoundException("Бронирование не найдено");
+    }
+
+    private Booking validateBooking(Long bookingId) {
+        Optional<Booking> booking = jpaBookingRepository.findById(bookingId);
+        if (booking.isEmpty()) {
+            throw new NotFoundException("Бронирование не найдено");
+        }
+        return booking.get();
+    }
+
+    /* public List<Booking> getAllByUser(Long userId, String state){
+        if (userId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+        User user = userRepository.findById(userId);
+    if ()
+    }
+*/
 }
