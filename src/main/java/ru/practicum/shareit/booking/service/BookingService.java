@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
@@ -10,15 +9,10 @@ import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 
 @Slf4j
@@ -84,7 +78,7 @@ public class BookingService {
             log.info("");
             throw new NotFoundException("");
         }
-        Booking booking = findById(bookingId);
+        Booking booking = findById(bookingId, userId);
         if (userId != booking.getItem().getOwner().getId()) {
             log.info("");
             throw new ForbiddenException("");
@@ -102,8 +96,26 @@ public class BookingService {
         return jpaBookingRepository.save(booking);
     }
 
-    public Booking findById(Long bookingId) {
+    public Booking findById(Long bookingId, Long userId) {
 
-        return jpaBookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(""));
+        Booking booking = jpaBookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(""));
+        if (isUserOwner(booking, userId) || isUserBooker(booking, userId)) {
+            return booking;
+        } else {
+            log.info("");
+            throw new ForbiddenException("");
+        }
+
     }
+
+    private boolean isUserBooker(Booking booking, Long userId) {
+        return booking.getBooker().getId() == userId;
+    }
+
+    private boolean isUserOwner(Booking booking, Long userId) {
+
+        return booking.getItem().getOwner().getId() == userId;
+    }
+
+
 }
