@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Slf4j
@@ -115,6 +116,14 @@ public class BookingService {
     private boolean isUserOwner(Booking booking, Long userId) {
 
         return booking.getItem().getOwner().getId() == userId;
+    }
+
+    public List<Booking> findAllByUser(Long userId, String state) {
+        if (userId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+
     }
 
 
