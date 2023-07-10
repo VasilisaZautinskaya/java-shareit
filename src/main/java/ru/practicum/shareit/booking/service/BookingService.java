@@ -76,18 +76,18 @@ public class BookingService {
             throw new NotFoundException("UserId не может быть null");
         }
         if (bookingId == null) {
-            log.info("");
-            throw new NotFoundException("");
+            log.info("Не найдено бронирование");
+            throw new NotFoundException("Не найдено бронирование");
         }
         Booking booking = findById(bookingId, userId);
         if (userId != booking.getItem().getOwner().getId()) {
-            log.info("");
-            throw new ForbiddenException("");
+            log.info("Не найдено бронирование");
+            throw new NotFoundException("Не найдено бронирование");
         }
 
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-            log.info("");
-            throw new ForbiddenException("");
+            log.info("Статус не может быть изменён");
+            throw new ValidateException("Статус не может быть изменён");
         }
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
@@ -103,8 +103,8 @@ public class BookingService {
         if (isUserOwner(booking, userId) || isUserBooker(booking, userId)) {
             return booking;
         } else {
-            log.info("");
-            throw new ForbiddenException("");
+            log.info("Бронирование не найдено для пользователя");
+            throw new NotFoundException("Бронирование не найдено для пользователя");
         }
 
     }
@@ -118,12 +118,66 @@ public class BookingService {
         return booking.getItem().getOwner().getId() == userId;
     }
 
-    public List<Booking> findAllByUser(Long userId, String state) {
+    public List<Booking> findAllByBooker(Long userId) {
         if (userId == null) {
             log.info("UserId не может быть null");
             throw new NotFoundException("UserId не может быть null");
         }
+        return jpaBookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+    }
 
+    public List<Booking> findAllCurrentByBooker(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return jpaBookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+    }
+
+    public List<Booking> findAllPastByBooker(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return jpaBookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
+    }
+
+    public List<Booking> findAllFutureByBooker(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        return jpaBookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, now);
+    }
+
+    public List<Booking> findAllWaitingByBooker(Long userId) {
+        return jpaBookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+    }
+
+    public List<Booking> findAllRejectedByBooker(Long userId) {
+        return jpaBookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+    }
+
+    public List<Booking> findAllByOwner(Long ownerId) {
+        if (ownerId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+        return jpaBookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
+    }
+
+    public List<Booking> findAllCurrentByOwner(Long ownerId) {
+        LocalDateTime now = LocalDateTime.now();
+        return jpaBookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
+    }
+
+    public List<Booking> findAllPastByOwner(Long ownerId) {
+        LocalDateTime now = LocalDateTime.now();
+        return jpaBookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
+    }
+
+    public List<Booking> findAllFutureByOwner(Long ownerId) {
+        LocalDateTime now = LocalDateTime.now();
+        return jpaBookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
+    }
+
+    public List<Booking> findAllWaitingByOwner(Long ownerId) {
+        return jpaBookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+    }
+
+    public List<Booking> findAllRejectedByOwner(Long ownerId) {
+        return jpaBookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
     }
 
 

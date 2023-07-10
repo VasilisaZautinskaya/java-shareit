@@ -9,6 +9,9 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class BookingMapper {
     public static Booking toBooking(BookingRequestDto booking, Item item, User user) {
         return Booking.builder()
@@ -50,4 +53,9 @@ public class BookingMapper {
     }
 
 
+    public static List<BookingResponseDto> toBookingResponseListDto(List<Booking> allByUser) {
+        return allByUser.stream()
+                .map(BookingMapper::toBookingResponseDto)
+                .collect(Collectors.toList());
+    }
 }

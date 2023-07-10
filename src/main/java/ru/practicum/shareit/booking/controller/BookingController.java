@@ -7,13 +7,18 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
+import ru.practicum.shareit.exception.WrongBookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
+
+import java.util.List;
 
 
 @RestController
@@ -33,7 +38,7 @@ public class BookingController {
         User user = validateAndGetUser(userId);
         Item item = validateAndGetItem(bookingRequestDto.getItemId());
 
-        validateCreateBooking(bookingRequestDto);
+        validateCreateBooking(bookingRequestDto, item, user);
 
         Booking booking = BookingMapper.toBooking(bookingRequestDto,
                 item,
@@ -44,7 +49,7 @@ public class BookingController {
         return createdBookingRequestDto;
     }
 
-    private void validateCreateBooking(BookingRequestDto bookingRequestDto) {
+    private void validateCreateBooking(BookingRequestDto bookingRequestDto, Item item, User user) {
         if (bookingRequestDto.getEnd() == null) {
             log.info("Время окончания бронирования не указано");
             throw new ValidateException("Время окончания бронирования не указано");
@@ -52,6 +57,10 @@ public class BookingController {
         if (bookingRequestDto.getStart() == null) {
             log.info("Время начала бронирования не указано");
             throw new ValidateException("Время начала бронирования не указано");
+        }
+        if (item.getOwner().getId() == user.getId()) {
+            log.info("Вы не можете арендовать свою вещь");
+            throw new ValidateException("Вы не можете арендовать свою вещь");
         }
     }
 
@@ -103,5 +112,49 @@ public class BookingController {
         BookingResponseDto createdBookingRequestDto = BookingMapper.toBookingResponseDto(booking);
 
         return createdBookingRequestDto;
+    }
+
+    @GetMapping
+    public List<BookingResponseDto> getAllBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                   @RequestParam(required = false, defaultValue = "ALL") String state) {
+        validateAndGetUser(userId);
+        switch (state) {
+            case "ALL":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllByBooker(userId));
+            case "CURRENT":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllCurrentByBooker(userId));
+            case "PAST":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllPastByBooker(userId));
+            case "FUTURE":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllFutureByBooker(userId));
+            case "WAITING":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllWaitingByBooker(userId));
+            case "REJECTED":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllRejectedByBooker(userId));
+            default:
+                throw new WrongBookingStatus(state);
+        }
+    }
+
+    @GetMapping("/owner")
+    public List<BookingResponseDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                  @RequestParam(required = false, defaultValue = "ALL") String state) {
+        validateAndGetUser(userId);
+        switch (state) {
+            case "ALL":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllByOwner(userId));
+            case "CURRENT":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllCurrentByOwner(userId));
+            case "PAST":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllPastByOwner(userId));
+            case "FUTURE":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllFutureByOwner(userId));
+            case "WAITING":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllWaitingByOwner(userId));
+            case "REJECTED":
+                return BookingMapper.toBookingResponseListDto(bookingService.findAllRejectedByOwner(userId));
+            default:
+                throw new WrongBookingStatus(state);
+        }
     }
 }
