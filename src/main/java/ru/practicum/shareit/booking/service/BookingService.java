@@ -75,31 +75,35 @@ public class BookingService {
         return jpaBookingRepository.save(booking);
     }
 
-    public Booking findById(Long bookingId, Long userId) {
-        Booking booking = validateBooking(bookingId);
-        if (Objects.equals(booking.getBooker().getId(), userId)
-                || Objects.equals(booking.getItem().getOwner().getId(), userId)) {
-            return booking;
-        }
-        log.info("Бронирование не найдено");
-        throw new NotFoundException("Бронирование не найдено");
-    }
-
-    private Booking validateBooking(Long bookingId) {
-        Optional<Booking> booking = jpaBookingRepository.findById(bookingId);
-        if (booking.isEmpty()) {
-            throw new NotFoundException("Бронирование не найдено");
-        }
-        return booking.get();
-    }
-
-    /* public List<Booking> getAllByUser(Long userId, String state){
+    public Booking approve(Long bookingId, Long userId, Boolean approved) {
         if (userId == null) {
             log.info("UserId не может быть null");
             throw new NotFoundException("UserId не может быть null");
         }
-        User user = userRepository.findById(userId);
-    if ()
+        if (bookingId == null) {
+            log.info("");
+            throw new NotFoundException("");
+        }
+        Booking booking = findById(bookingId);
+        if (userId != booking.getItem().getOwner().getId()) {
+            log.info("");
+            throw new ForbiddenException("");
+        }
+
+        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
+            log.info("");
+            throw new ForbiddenException("");
+        }
+        if (approved) {
+            booking.setStatus(BookingStatus.APPROVED);
+        } else {
+            booking.setStatus(BookingStatus.REJECTED);
+        }
+        return jpaBookingRepository.save(booking);
     }
-*/
+
+    public Booking findById(Long bookingId) {
+
+        return jpaBookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(""));
+    }
 }

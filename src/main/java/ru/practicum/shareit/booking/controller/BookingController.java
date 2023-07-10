@@ -40,18 +40,22 @@ public class BookingController {
             throw new NotFoundException("Не найден пользователь");
         }
         if (bookingRequestDto.getItemId() == null) {
-            throw new ValidateException("Нет");
+            log.info("Вещь с таким id  не найдена");
+            throw new ValidateException("Вещь с таким id  не найдена");
         }
         Item item = itemService.findById(bookingRequestDto.getItemId());
         if (item == null) {
-            throw new NotFoundException("Нет");
+            log.info("Вещь не найдена");
+            throw new NotFoundException("Вещь не найдена");
         }
 
         if (bookingRequestDto.getEnd() == null) {
-            throw new ValidateException("Нет");
+            log.info("Время окончания бронирования не указано");
+            throw new ValidateException("Время окончания бронирования не указано");
         }
         if (bookingRequestDto.getStart() == null) {
-            throw new ValidateException("Нет");
+            log.info("Время начала бронирования не указано");
+            throw new ValidateException("Время начала бронирования не указано");
         }
 
         Booking booking = BookingMapper.toBooking(bookingRequestDto,
@@ -63,11 +67,21 @@ public class BookingController {
         return createdBookingRequestDto;
     }
 
-    @GetMapping("/{bookingId}")
-    public BookingRequestDto getById(@PathVariable Long bookingId,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
-        Booking booking = bookingService.findById(bookingId, userId);
-        BookingRequestDto getBookingRequestDto = BookingMapper.toBookingDto(booking);
-        return getBookingRequestDto;
+    @PatchMapping("/{bookingId}")
+    public BookingResponseDto approve(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @RequestParam boolean approved) {
+
+        if (userId == null) {
+            log.info("UserId не может быть null");
+            throw new ValidateException("UserId не может быть null");
+        }
+        if (bookingId == null) {
+            log.info("");
+            throw new ValidateException("");
+        }
+        Booking booking = bookingService.approve(bookingId, userId, approved);
+        BookingResponseDto createdBookingRequestDto = BookingMapper.toBookingResponseDto(booking);
+
+        return createdBookingRequestDto;
     }
 }
