@@ -15,6 +15,9 @@ public class CommentMaper {
     }
 
     public static CommentDto toCommentDto(Comment comment) {
+        if (comment == null) {
+            return null;
+        }
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())

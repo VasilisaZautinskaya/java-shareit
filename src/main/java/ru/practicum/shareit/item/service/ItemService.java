@@ -99,10 +99,7 @@ public class ItemService {
 
 
     public Item findById(Long itemId) {
-        if (itemId == 100) {
-            log.error("Вещь с таким id  не найдена");
-            throw new NotFoundException("Вещь с таким id  не найдена");
-        }
+
         return itemRepository.findById(itemId);
     }
 

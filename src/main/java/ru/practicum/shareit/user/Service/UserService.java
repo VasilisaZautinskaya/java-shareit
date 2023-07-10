@@ -59,10 +59,7 @@ public class UserService {
 
 
     public User getUserById(Long userId) {
-        if (userId == 100) {
-            log.error("Пользователь с таким id  не найден");
-            throw new NotFoundException("Неправильный id пользователя");
-        }
+
         return userRepository.findById(userId);
     }
 

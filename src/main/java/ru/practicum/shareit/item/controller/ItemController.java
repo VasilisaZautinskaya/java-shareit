@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMaper;
@@ -15,6 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
+@Slf4j
 public class ItemController {
 
     private final ItemService itemService;
@@ -35,7 +39,10 @@ public class ItemController {
                                              @PathVariable Long itemId) {
 
         Item getItem = itemService.findById(itemId);
-        ItemDto getItemDto = ItemMapper.toItemDto(getItem);
+        if (getItem == null){
+            throw new NotFoundException("Вещь не найдена");
+        }
+            ItemDto getItemDto = ItemMapper.toItemDto(getItem);
         return getItemDto;
     }
 
