@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class DbItemRepository implements ItemRepository {
 
     @Override
     public Item findById(Long itemId) {
+
         return jpaItemRepository.findById(itemId).orElse(null);
     }
 
@@ -39,4 +41,6 @@ public class DbItemRepository implements ItemRepository {
 
         return jpaItemRepository.getSearch(text);
     }
+
+
 }

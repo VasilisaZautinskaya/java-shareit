@@ -48,7 +48,7 @@ public class BookingService {
         }
         if (booking.getItem() == null) {
             log.info("Такая вещь не найдена");
-            throw new ValidateException("Такая вещь не найдена");
+            throw new NotFoundException("Такая вещь не найдена");
         }
         if (booking.getItem().getId() == null) {
             log.info("Такая вещь не найдена");

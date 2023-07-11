@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.mapper;
 
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.ItemBookerDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ShortBookingResponseDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
@@ -40,3 +43,6 @@ public class ItemMapper {
         return dtolist;
     }
 }
+
+
+
