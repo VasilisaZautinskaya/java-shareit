@@ -3,9 +3,8 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
@@ -21,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
+
 
 
 @Service
@@ -34,6 +33,8 @@ public class ItemService {
     JpaBookingRepository bookingRepository;
 
     CommentRepository commentRepository;
+
+    BookingService bookingService;
 
 
     public Item createItem(Item item, Long userId) {
@@ -133,6 +134,10 @@ public class ItemService {
             log.error("Вещь с таким id  не найдена");
             throw new NotFoundException("Вещь с таким id  не найдена");
         }
+        if (!bookingService.isUserBookedItem(user, item)) {
+            log.info("Вы не можете оставить комментарий, так как не бронировали эту вещь");
+            throw new ValidateException("Вы не можете оставить комментарий, так как не бронировали эту вещь");
+        }
 
         comment.setItem(item);
         comment.setAuthor(user);
@@ -140,6 +145,7 @@ public class ItemService {
         return commentRepository.save(comment);
 
     }
+
 
     public List<Comment> findAllByItemId(Long itemId) {
         return commentRepository.findAllByItemId(itemId);

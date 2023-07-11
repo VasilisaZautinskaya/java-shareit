@@ -3,13 +3,14 @@ package ru.practicum.shareit.booking.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -193,12 +194,20 @@ public class BookingService {
     public Booking getNextBookingForItem(Long itemId) {
         List<Booking> bookings = bookingRepository.findAllByItemId(itemId);
         return bookings.stream()
-                .filter(o -> o.getStart().isAfter(LocalDateTime.now()))
-                .sorted((o1, o2) -> o2.getStart().compareTo(o1.getStart()))
+                .filter(o -> o.getStart().isAfter(LocalDateTime.now()) && !o.getStatus().equals(BookingStatus.REJECTED))
+                .sorted((o1, o2) -> o1.getStart().compareTo(o2.getStart()))
                 .findFirst()
                 .orElse(null);
 
 
+    }
+
+    public boolean isUserBookedItem(User user, Item item) {
+        List<Booking> bookings = findAllByBooker(user.getId());
+        return bookings.stream()
+                .anyMatch(o -> o.getItem().getId() == item.getId()
+                        && o.getStatus().equals(BookingStatus.APPROVED)
+                        && o.getEnd().isBefore(LocalDateTime.now()));
     }
 
 }

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateEmailException;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -18,10 +17,7 @@ public class UserService {
     UserRepository userRepository;
 
     public User createUser(User user) {
-      /*  if (userRepository.getUserByEmail(user.getEmail()) != (null)) {
-            log.info("Такой email уже существует");
-            throw new DuplicateEmailException("Пользователь с таким email уже зарегистрирован");
-        }*/
+
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
             log.info("Неверный email");
             throw new ValidateException("Неверный email");

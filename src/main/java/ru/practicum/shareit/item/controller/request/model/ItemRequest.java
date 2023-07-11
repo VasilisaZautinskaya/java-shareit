@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 
 @Data
