@@ -6,7 +6,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 
 public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
 
