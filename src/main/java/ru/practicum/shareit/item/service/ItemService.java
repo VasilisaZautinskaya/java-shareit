@@ -3,14 +3,13 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 
-import ru.practicum.shareit.item.dto.ItemBookerDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
@@ -32,7 +31,7 @@ public class ItemService {
     ItemRepository itemRepository;
     UserRepository inMemoryUserRepository;
 
-    JpaBookingRepository jpaBookingRepository;
+    JpaBookingRepository bookingRepository;
 
     CommentRepository commentRepository;
 
@@ -122,19 +121,19 @@ public class ItemService {
             log.info("UserId не может быть null");
             throw new NotFoundException("UserId не может быть null");
         }
+
         User user = inMemoryUserRepository.findById(userId);
+        if (user == null) {
+            log.info("Пользователь не найден");
+            throw new NotFoundException("Пользователь не найден");
+        }
+
+        Item item = findById(itemId);
         if (itemId == null) {
             log.error("Вещь с таким id  не найдена");
             throw new NotFoundException("Вещь с таким id  не найдена");
         }
-        Item item = findById(itemId);
-        if (jpaBookingRepository.findAllByItemIdAndBookerIdAndStatusEqualsAndEndIsBefore(itemId,
-                userId, APPROVED,
-                LocalDateTime.now()).isEmpty()) {
-            log.info("Пользователь не может оставить комментарий, так как не бронировал вещь или же не завершил аренду прошлой вещи.");
-            throw new ValidateException("Пользователь не может оставить комментарий, так как не бронировал вещь или же не завершил аренду прошлой вещи.");
 
-        }
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
@@ -142,25 +141,9 @@ public class ItemService {
 
     }
 
-    private ItemBookerDto setBooking(final LocalDateTime currentTime,
-                                     final ItemBookerDto itemBookerDto,
-                                     final List<Booking> bookings) {
-        final var lastBooking = bookings.stream()
-                .filter(o -> o.getEnd().isBefore(currentTime))
-                .sorted((o1, o2) ->)
-                .findFirst()
-                .map(BookingMapper::mapToBookingShortDto)
-                .orElse(null);
-        final var nextBooking = bookings.stream()
-                .filter(o -> o.getStart().isAfter(currentTime))
-                .sorted((o1, o2) ->)
-                .map(BookingMapper::mapToBookingShortDto)
-                .findFirst()
-                .orElse(null);
-
-        itemBookerDto.setLastBooking(lastBooking);
-        itemBookerDto.setNextBooking(nextBooking);
-
-        return itemBookerDto;
+    public List<Comment> findAllByItemId(Long itemId) {
+        return commentRepository.findAllByItemId(itemId);
     }
+
+
 }

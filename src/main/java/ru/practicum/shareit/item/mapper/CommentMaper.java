@@ -1,7 +1,12 @@
 package ru.practicum.shareit.item.mapper;
 
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommentMaper {
 
@@ -24,5 +29,14 @@ public class CommentMaper {
                 .authorName(comment.getAuthor().getName())
                 .created(comment.getCreated())
                 .build();
+    }
+
+    public static List<CommentDto> toCommentDtoList(List<Comment> comments) {
+        List<CommentDto> dtolist = new ArrayList<>();
+        for (Comment comment: comments) {
+           CommentDto commentDto = toCommentDto(comment);
+            dtolist.add(commentDto);
+        }
+        return dtolist;
     }
 }

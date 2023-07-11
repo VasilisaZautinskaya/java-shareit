@@ -3,10 +3,13 @@ package ru.practicum.shareit.item.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.mapper.CommentMaper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -22,6 +25,7 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final BookingService bookingService;
 
 
     @PostMapping
@@ -35,14 +39,18 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public @ResponseBody ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @PathVariable Long itemId) {
+    public @ResponseBody ItemWithBookingDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                        @PathVariable Long itemId) {
 
         Item getItem = itemService.findById(itemId);
-        if (getItem == null){
+        if (getItem == null) {
             throw new NotFoundException("Вещь не найдена");
         }
-            ItemDto getItemDto = ItemMapper.toItemDto(getItem);
+
+        Booking lastItemBooking = bookingService.getLastBookingForItem(itemId);
+        Booking nextItemBooking = bookingService.getNextBookingForItem(itemId);
+        List<Comment> comments = itemService.findAllByItemId(itemId);
+        ItemWithBookingDto getItemDto = ItemMapper.toItemWithBookingDto(getItem, lastItemBooking, nextItemBooking, comments);
         return getItemDto;
     }
 
@@ -77,9 +85,12 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentDto postComment(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId,
                                   @RequestBody CommentDto commentDto) {
+
+
         Comment comment = CommentMaper.toComment(commentDto);
         Comment postComment = itemService.postComment(itemId, userId, comment);
         CommentDto postCommentDto = CommentMaper.toCommentDto(postComment);
         return postCommentDto;
     }
+
 }

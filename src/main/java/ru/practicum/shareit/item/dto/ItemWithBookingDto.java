@@ -2,18 +2,16 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
 
 import java.util.List;
 
 @Data
 @Builder
-public class ItemBookerDto {
+public class ItemWithBookingDto {
 
     private Long id;
 
     private Long ownerId;
-
 
     private String name;
 
@@ -22,8 +20,8 @@ public class ItemBookerDto {
 
     private Boolean available;
 
-    private BookingShortDto lastBooking;
-    private BookingShortDto nextBooking;
+    private BookingForItemDto lastBooking;
+    private BookingForItemDto nextBooking;
     private List<CommentDto> comments;
 }
 

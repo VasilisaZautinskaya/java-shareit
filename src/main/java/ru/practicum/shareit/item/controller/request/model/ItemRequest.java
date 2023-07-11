@@ -31,7 +31,5 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id", referencedColumnName = "id")
     private User requestor;
 
-    @Column(name = "created")
-    private LocalDate created;
 
 }

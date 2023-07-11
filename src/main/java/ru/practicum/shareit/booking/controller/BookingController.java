@@ -60,7 +60,7 @@ public class BookingController {
         }
         if (item.getOwner().getId() == user.getId()) {
             log.info("Вы не можете арендовать свою вещь");
-            throw new ValidateException("Вы не можете арендовать свою вещь");
+            throw new NotFoundException("Вы не можете арендовать свою вещь");
         }
     }
 
