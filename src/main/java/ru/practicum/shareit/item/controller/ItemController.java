@@ -48,13 +48,12 @@ public class ItemController {
         if (item == null) {
             throw new NotFoundException("Вещь не найдена");
         }
-        Booking lastItemBooking = null;
         Booking nextItemBooking = null;
+        Booking lastItemBooking = null;
         if (Objects.equals(item.getOwner().getId(), userId)) {
-            lastItemBooking = bookingService.getLastBookingForItem(itemId);
             nextItemBooking = bookingService.getNextBookingForItem(itemId);
+            lastItemBooking = bookingService.getLastBookingForItem(itemId);
         }
-
 
         List<Comment> comments = itemService.findAllByItemId(itemId);
         ItemWithBookingDto getItemDto = ItemMapper.toItemWithBookingDto(item, lastItemBooking, nextItemBooking, comments);
@@ -80,6 +79,7 @@ public class ItemController {
     @GetMapping
     public @ResponseBody List<ItemWithBookingDto> getAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
         List<ItemWithBookingDto> allItemDto = itemService.findAll(userId).stream()
+
                 .map(item -> {
                             Booking lastItemBooking = null;
                             Booking nextItemBooking = null;

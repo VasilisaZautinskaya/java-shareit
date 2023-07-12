@@ -185,8 +185,8 @@ public class BookingService {
     public Booking getLastBookingForItem(Long itemId) {
         List<Booking> bookings = bookingRepository.findAllByItemId(itemId);
         return bookings.stream()
-                .filter(o -> o.getEnd().isBefore(LocalDateTime.now()))
-                .sorted((o1, o2) -> o2.getEnd().compareTo(o1.getEnd()))
+                .filter(o -> o.getStart().isBefore(LocalDateTime.now()))
+                .sorted((o1, o2) -> o2.getStart().compareTo(o1.getStart()))
                 .findFirst()
                 .orElse(null);
 
