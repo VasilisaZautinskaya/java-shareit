@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -49,7 +50,7 @@ public class ItemController {
         }
         Booking lastItemBooking = null;
         Booking nextItemBooking = null;
-        if (item.getOwner().getId() == userId) {
+        if (Objects.equals(item.getOwner().getId(), userId)) {
             lastItemBooking = bookingService.getLastBookingForItem(itemId);
             nextItemBooking = bookingService.getNextBookingForItem(itemId);
         }
@@ -82,7 +83,7 @@ public class ItemController {
                 .map(item -> {
                             Booking lastItemBooking = null;
                             Booking nextItemBooking = null;
-                            if (item.getOwner().getId() == userId) {
+                            if (Objects.equals(item.getOwner().getId(), userId)) {
                                 lastItemBooking = bookingService.getLastBookingForItem(item.getId());
                                 nextItemBooking = bookingService.getNextBookingForItem(item.getId());
                             }
