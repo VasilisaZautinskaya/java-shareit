@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -56,7 +57,7 @@ public class BookingController {
             log.info("Время начала бронирования не указано");
             throw new ValidateException("Время начала бронирования не указано");
         }
-        if (item.getOwner().getId() == user.getId()) {
+        if (Objects.equals(item.getOwner().getId(), user.getId())) {
             log.info("Вы не можете арендовать свою вещь");
             throw new NotFoundException("Вы не можете арендовать свою вещь");
         }

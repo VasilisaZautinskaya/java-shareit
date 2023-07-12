@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 
 @Slf4j
@@ -55,7 +56,7 @@ public class BookingService {
             log.info("Такая вещь не найдена");
             throw new NotFoundException("Такая вещь не найдена");
         }
-        if (booking.getItem().getAvailable() == null || booking.getItem().getAvailable() == false) {
+        if (booking.getItem().getAvailable() == null || !booking.getItem().getAvailable()) {
             log.info("Вы не можете забронировать эту вещь");
             throw new ValidateException("Вы не можете забронировать эту вещь");
         }
@@ -81,7 +82,7 @@ public class BookingService {
             throw new NotFoundException("Не найдено бронирование");
         }
         Booking booking = findById(bookingId, userId);
-        if (userId != booking.getItem().getOwner().getId()) {
+        if (!userId.equals(booking.getItem().getOwner().getId())) {
             log.info("Не найдено бронирование");
             throw new NotFoundException("Не найдено бронирование");
         }
@@ -111,12 +112,12 @@ public class BookingService {
     }
 
     private boolean isUserBooker(Booking booking, Long userId) {
-        return booking.getBooker().getId() == userId;
+        return Objects.equals(booking.getBooker().getId(), userId);
     }
 
     private boolean isUserOwner(Booking booking, Long userId) {
 
-        return booking.getItem().getOwner().getId() == userId;
+        return Objects.equals(booking.getItem().getOwner().getId(), userId);
     }
 
     public List<Booking> findAllByBooker(Long userId) {
@@ -198,14 +199,12 @@ public class BookingService {
                 .sorted((o1, o2) -> o1.getStart().compareTo(o2.getStart()))
                 .findFirst()
                 .orElse(null);
-
-
     }
 
     public boolean isUserBookedItem(User user, Item item) {
         List<Booking> bookings = findAllByBooker(user.getId());
         return bookings.stream()
-                .anyMatch(o -> o.getItem().getId() == item.getId()
+                .anyMatch(o -> Objects.equals(o.getItem().getId(), item.getId())
                         && o.getStatus().equals(BookingStatus.APPROVED)
                         && o.getEnd().isBefore(LocalDateTime.now()));
     }

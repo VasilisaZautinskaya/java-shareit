@@ -29,7 +29,6 @@ public class ItemController {
     private final ItemService itemService;
     private final BookingService bookingService;
 
-
     @PostMapping
     public @ResponseBody ItemDto createItem(@RequestBody ItemDto itemDto,
                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
