@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 
 @AllArgsConstructor
@@ -22,9 +24,13 @@ public class Item {
     @Column(name = "id")
     private Long id;
 
+    @NotNull
+    @NotBlank
     @Column(name = "name")
     private String name;
 
+
+    @NotNull
     @Column(name = "description")
     private String description;
 
@@ -36,6 +42,8 @@ public class Item {
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private ItemRequest request;
 
+
+    @NotNull
     @Column(name = "available")
     private Boolean available;
 

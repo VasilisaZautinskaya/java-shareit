@@ -27,8 +27,6 @@ import java.util.List;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository inMemoryUserRepository;
-
-    private final JpaBookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final BookingService bookingService;
 
