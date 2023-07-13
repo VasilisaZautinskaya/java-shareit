@@ -18,10 +18,7 @@ public class UserService {
     UserRepository userRepository;
 
     public User createUser(User user) {
-       /* if (userRepository.getUserByEmail(user.getEmail()) != (null)) {
-            log.info("Такой email уже существует");
-            throw new DuplicateEmailException("Пользователь с таким email уже зарегистрирован");
-        }*/
+
         if (user.getEmail() == null || !user.getEmail().contains("@")) {
             log.info("Неверный email");
             throw new ValidateException("Неверный email");
