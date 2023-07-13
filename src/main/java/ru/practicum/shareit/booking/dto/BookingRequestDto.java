@@ -4,9 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
-
 import java.time.LocalDateTime;
-
 
 @Builder
 @Data
@@ -17,6 +15,5 @@ public class BookingRequestDto {
     private Long itemId;
     private Long bookerId;
     private BookingStatus status;
-
 
 }
