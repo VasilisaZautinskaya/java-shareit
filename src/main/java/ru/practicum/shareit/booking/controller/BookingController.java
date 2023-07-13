@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
@@ -115,45 +116,45 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getAllBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @RequestParam(required = false, defaultValue = "ALL") String state) {
+                                                   @RequestParam(required = false, defaultValue = "ALL") State state) {
         validateAndGetUser(userId);
         switch (state) {
-            case "ALL":
+            case ALL:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllByBooker(userId));
-            case "CURRENT":
+            case CURRENT:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllCurrentByBooker(userId));
-            case "PAST":
+            case PAST:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllPastByBooker(userId));
-            case "FUTURE":
+            case FUTURE:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllFutureByBooker(userId));
-            case "WAITING":
+            case WAITING:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllWaitingByBooker(userId));
-            case "REJECTED":
+            case REJECTED:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllRejectedByBooker(userId));
             default:
-                throw new WrongBookingStatus(state);
+                throw new WrongBookingStatus(state.toString());
         }
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                  @RequestParam(required = false, defaultValue = "ALL") String state) {
+                                                  @RequestParam(required = false, defaultValue = "ALL") State state) {
         validateAndGetUser(userId);
         switch (state) {
-            case "ALL":
+            case ALL:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllByOwner(userId));
-            case "CURRENT":
+            case CURRENT:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllCurrentByOwner(userId));
-            case "PAST":
+            case PAST:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllPastByOwner(userId));
-            case "FUTURE":
+            case FUTURE:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllFutureByOwner(userId));
-            case "WAITING":
+            case WAITING:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllWaitingByOwner(userId));
-            case "REJECTED":
+            case REJECTED:
                 return BookingMapper.toBookingResponseListDto(bookingService.findAllRejectedByOwner(userId));
             default:
-                throw new WrongBookingStatus(state);
+                throw new WrongBookingStatus(state.toString());
         }
     }
 }
