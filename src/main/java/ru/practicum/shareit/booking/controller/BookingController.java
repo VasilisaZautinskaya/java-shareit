@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 
-
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "/bookings")
@@ -24,15 +23,14 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-
     @PostMapping
-    public BookingResponseDto create( @RequestBody BookingRequestDto bookingRequestDto,
+    public BookingResponseDto create(@RequestBody BookingRequestDto bookingRequestDto,
                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
 
         User user = bookingService.validateAndGetUser(userId);
         Item item = bookingService.validateAndGetItem(bookingRequestDto.getItemId());
 
-         bookingService.validateCreateBooking(bookingRequestDto, item, user);
+        bookingService.validateCreateBooking(bookingRequestDto, item, user);
 
         Booking booking = BookingMapper.toBooking(bookingRequestDto,
                 item,

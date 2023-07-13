@@ -16,7 +16,6 @@ import ru.practicum.shareit.exception.WrongBookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.InMemoryUserRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 
