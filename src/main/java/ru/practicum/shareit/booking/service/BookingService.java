@@ -23,9 +23,9 @@ import java.util.Objects;
 @AllArgsConstructor
 public class BookingService {
 
-    JpaBookingRepository bookingRepository;
-    UserRepository userRepository;
-    ItemRepository itemRepository;
+    private final JpaBookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     public Booking create(Booking booking, Long userId) {
         if (userId == null) {

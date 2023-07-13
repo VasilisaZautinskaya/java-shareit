@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class UserService {
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public User createUser(User user) {
 

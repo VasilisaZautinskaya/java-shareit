@@ -21,20 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-
 @Service
 @Slf4j
 @AllArgsConstructor
 public class ItemService {
-    ItemRepository itemRepository;
-    UserRepository inMemoryUserRepository;
+    private final ItemRepository itemRepository;
+    private final UserRepository inMemoryUserRepository;
 
-    JpaBookingRepository bookingRepository;
-
-    CommentRepository commentRepository;
-
-    BookingService bookingService;
+    private final JpaBookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final BookingService bookingService;
 
 
     public Item createItem(Item item, Long userId) {
@@ -146,10 +142,8 @@ public class ItemService {
 
     }
 
-
     public List<Comment> findAllByItemId(Long itemId) {
         return commentRepository.findAllByItemId(itemId);
     }
-
 
 }
