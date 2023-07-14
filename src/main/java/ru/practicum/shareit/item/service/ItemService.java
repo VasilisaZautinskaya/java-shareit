@@ -92,28 +92,23 @@ public class ItemService {
     }
 
     public Comment postComment(Long itemId, Long userId, Comment comment) {
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new NotFoundException("UserId не может быть null");
-        }
 
         User user = userService.getById(userId);
-
         Item item = getById(itemId);
-        if (itemId == null) {
-            log.error("Вещь с таким id  не найдена");
-            throw new NotFoundException("Вещь с таким id  не найдена");
-        }
-        if (!bookingService.isUserBookedItem(user, item)) {
-            log.info("Вы не можете оставить комментарий, так как не бронировали эту вещь");
-            throw new ValidateException("Вы не можете оставить комментарий, так как не бронировали эту вещь");
-        }
+
+        validateThatUserHadBookedItem(user, item);
 
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
         return commentRepository.save(comment);
+    }
 
+    private void validateThatUserHadBookedItem(User user, Item item) {
+        if (!bookingService.isUserBookedItem(user, item)) {
+            log.info("Вы не можете оставить комментарий, так как не бронировали эту вещь");
+            throw new ValidateException("Вы не можете оставить комментарий, так как не бронировали эту вещь");
+        }
     }
 
     public List<Comment> findAllByItemId(Long itemId) {

@@ -79,7 +79,9 @@ public class ItemController {
     }
 
     @GetMapping
-    public @ResponseBody List<ItemWithBookingDto> getAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public @ResponseBody List<ItemWithBookingDto> getAllItems(
+            @RequestHeader("X-Sharer-User-Id") Long userId
+    ) {
         List<ItemWithBookingDto> allItemDto = itemService.findAll(userId).stream()
 
                 .map(item -> {
@@ -97,23 +99,21 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public @ResponseBody List<ItemDto> findItemByParams(@RequestParam String text) {
-        List<ItemDto> items = ItemMapper.toItemDtoList(itemService.getItemsByText(text));
-        return items;
+    public @ResponseBody List<ItemDto> findItemByParams(
+            @RequestParam String text
+    ) {
+        return ItemMapper.toItemDtoList(itemService.getItemsByText(text));
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto postComment(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId,
-                                  @RequestBody CommentDto commentDto) {
-        if (commentDto.getText() == null || commentDto.getText().isEmpty()) {
-            log.info("Текст комментария не может быть пустым");
-            throw new ValidateException("");
-        }
-
+    public CommentDto postComment(
+            @PathVariable Long itemId,
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody CommentDto commentDto
+    ) {
         Comment comment = CommentMaper.toComment(commentDto);
         Comment postComment = itemService.postComment(itemId, userId, comment);
-        CommentDto postCommentDto = CommentMaper.toCommentDto(postComment);
-        return postCommentDto;
+        return CommentMaper.toCommentDto(postComment);
     }
 
 }
