@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
+import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -31,23 +32,24 @@ public class ItemController {
     private final BookingService bookingService;
 
     @PostMapping
-    public @ResponseBody ItemDto createItem(@RequestBody ItemDto itemDto,
-                                            @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public @ResponseBody ItemDto createItem(
+            @Valid @RequestBody ItemDto itemDto,
+            @RequestHeader("X-Sharer-User-Id") Long userId
+    ) {
 
         Item item = ItemMapper.toItem(itemDto);
         Item createdItem = itemService.createItem(item, userId);
-        ItemDto createdItemDto = ItemMapper.toItemDto(createdItem);
-        return createdItemDto;
+        return ItemMapper.toItemDto(createdItem);
     }
 
     @GetMapping("/{itemId}")
-    public @ResponseBody ItemWithBookingDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                        @PathVariable Long itemId) {
+    public @ResponseBody ItemWithBookingDto getItemById(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId
+    ) {
 
         Item item = itemService.getById(itemId);
-        if (item == null) {
-            throw new NotFoundException("Вещь не найдена");
-        }
+
         Booking nextItemBooking = null;
         Booking lastItemBooking = null;
         if (Objects.equals(item.getOwner().getId(), userId)) {

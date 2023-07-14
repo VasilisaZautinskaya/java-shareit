@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -25,38 +26,14 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
-    private final UserRepository inMemoryUserRepository;
+    private final UserService userService;
     private final CommentRepository commentRepository;
     private final BookingService bookingService;
 
 
     public Item createItem(Item item, Long userId) {
-
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new ValidateException("UserId не может быть null");
-        }
-        if (item.getName().isEmpty()) {
-            log.info("Имя не может быть null");
-            throw new ValidateException("Имя не может быть null");
-        }
-        if (item.getDescription() == null) {
-            log.info("Описание не может быть null");
-            throw new ValidateException("Описание не может быть null");
-        }
-        if (item.getAvailable() == null) {
-            log.info("Вещь должна быть доступна для бронирования");
-            throw new ValidateException("Вещь должна быть доступна для бронирования");
-        }
-        User user = inMemoryUserRepository.findById(userId);
-        if (user == null) {
-            log.info("Такой пользователь не найден");
-            throw new NotFoundException("Такой пользователь не найден");
-        }
-
-        item.setOwner(user);
+        item.setOwner(userService.getById(userId));
         return itemRepository.save(item);
-
     }
 
     public Item update(Long itemId, Item item, Long userId) {
@@ -121,11 +98,7 @@ public class ItemService {
             throw new NotFoundException("UserId не может быть null");
         }
 
-        User user = inMemoryUserRepository.findById(userId);
-        if (user == null) {
-            log.info("Пользователь не найден");
-            throw new NotFoundException("Пользователь не найден");
-        }
+        User user = userService.getById(userId);
 
         Item item = getById(itemId);
         if (itemId == null) {
