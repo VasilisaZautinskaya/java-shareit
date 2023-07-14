@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
+import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.mapper.CommentMaper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -63,14 +63,14 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public @ResponseBody ItemDto update(@PathVariable Long itemId,
-                                        @RequestBody ItemDto itemDto,
-                                        @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public @ResponseBody ItemDto update(
+            @PathVariable Long itemId,
+            @Valid @RequestBody UpdateItemDto itemDto,
+            @RequestHeader("X-Sharer-User-Id") Long userId
+    ) {
         Item item = ItemMapper.toItem(itemDto);
         Item updatedItem = itemService.update(itemId, item, userId);
-        ItemDto updatedItemDto = ItemMapper.toItemDto(updatedItem);
-
-        return updatedItemDto;
+        return ItemMapper.toItemDto(updatedItem);
     }
 
     @DeleteMapping("/{itemId}")

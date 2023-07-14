@@ -37,17 +37,9 @@ public class ItemService {
     }
 
     public Item update(Long itemId, Item item, Long userId) {
+
         Item oldItem = itemRepository.findById(itemId);
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new ValidateException("UserId не может быть null");
-        }
-
-        if (!oldItem.getOwner().getId().equals(userId)) {
-            log.info("Нельзя обновить вещь, принадлежащую другому пользователю");
-            throw new ForbiddenException("Нельзя обновить вещь, принадлежащую другому пользователю");
-
-        }
+        validateThatUserIsOwner(userId, oldItem);
 
         if (item.getName() != null) {
             oldItem.setName(item.getName());
@@ -63,6 +55,13 @@ public class ItemService {
         }
 
         return itemRepository.save(oldItem);
+    }
+
+    private void validateThatUserIsOwner(Long userId, Item oldItem) {
+        if (!oldItem.getOwner().getId().equals(userId)) {
+            log.info("Нельзя обновить вещь, принадлежащую другому пользователю");
+            throw new ForbiddenException("Нельзя обновить вещь, принадлежащую другому пользователю");
+        }
     }
 
 
