@@ -23,12 +23,11 @@ public class UserService {
     }
 
     public User update(Long userId, User user) {
-        User userWithSameEmail = userRepository.getUserByEmail(user.getEmail());
-        if (userWithSameEmail != (null) && !userWithSameEmail.getId().equals(userId)) {
-            log.info("Такой email уже существует");
-            throw new DuplicateEmailException("Пользователь с таким email уже зарегистрирован");
-        }
+
+        validateThatEmailIsFree(userId, user);
+
         User oldUser = userRepository.findById(userId);
+
         if (userId == null) {
             return user;
         }
@@ -39,8 +38,15 @@ public class UserService {
             oldUser.setEmail(user.getEmail());
         }
 
-
         return userRepository.save(oldUser);
+    }
+
+    private void validateThatEmailIsFree(Long userId, User user) {
+        User userWithSameEmail = userRepository.getUserByEmail(user.getEmail());
+        if (userWithSameEmail != (null) && !userWithSameEmail.getId().equals(userId)) {
+            log.info("Такой email уже существует");
+            throw new DuplicateEmailException("Пользователь с таким email уже зарегистрирован");
+        }
     }
 
 

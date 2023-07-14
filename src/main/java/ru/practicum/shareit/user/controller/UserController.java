@@ -30,25 +30,22 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public @ResponseBody UserDto getUserById(@PathVariable Long userId) {
-        User getdUser = userService.getById(userId);
-        if (getdUser == null) {
-            throw new NotFoundException("Не найден пользователь");
-        }
-        UserDto getdUserDto = UserMapper.toUserDto(getdUser);
-
-        return getdUserDto;
+    public @ResponseBody UserDto getUserById(
+            @PathVariable Long userId
+    ) {
+        return UserMapper.toUserDto(userService.getById(userId));
     }
 
     @PatchMapping("/{userId}")
-    public @ResponseBody UserDto update(@PathVariable Long userId,
-                                        @RequestBody UserDto userDto) {
+    public @ResponseBody UserDto update(
+            @PathVariable Long userId,
+            @RequestBody UserDto userDto
+    ) {
 
         User user = UserMapper.toUser(userDto);
         User updateUser = userService.update(userId, user);
-        UserDto updateUserDto = UserMapper.toUserDto(updateUser);
 
-        return updateUserDto;
+        return UserMapper.toUserDto(updateUser);
     }
 
     @DeleteMapping("/{userId}")
@@ -58,8 +55,6 @@ public class UserController {
 
     @GetMapping
     public @ResponseBody List<UserDto> getAllUsers() {
-        List<UserDto> allUserDto = UserMapper.toUserDtoList(userService.getAllUsers());
-        return allUserDto;
+        return UserMapper.toUserDtoList(userService.getAllUsers());
     }
-
 }
