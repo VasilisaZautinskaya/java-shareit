@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -20,13 +21,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public @ResponseBody UserDto createUser(@RequestBody UserDto userDto) {
-
+    public @ResponseBody UserDto createUser(
+            @Valid @RequestBody UserDto userDto
+    ) {
         User user = UserMapper.toUser(userDto);
         User createdUser = userService.createUser(user);
-        UserDto createdUserDto = UserMapper.toUserDto(createdUser);
-
-        return createdUserDto;
+        return UserMapper.toUserDto(createdUser);
     }
 
     @GetMapping("/{userId}")

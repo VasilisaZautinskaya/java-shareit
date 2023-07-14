@@ -19,12 +19,6 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User createUser(User user) {
-
-        if (user.getEmail() == null || !user.getEmail().contains("@")) {
-            log.info("Неверный email");
-            throw new ValidateException("Неверный email");
-        }
-
         return userRepository.save(user);
     }
 
