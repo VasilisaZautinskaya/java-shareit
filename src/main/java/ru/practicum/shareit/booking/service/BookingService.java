@@ -80,7 +80,7 @@ public class BookingService {
     }
 
     private void valildateThatUserIsOwner(Long userId, Booking booking) {
-        if (!userId.equals(booking.getItem().getOwner().getId())) {
+        if (!isUserOwner(booking, userId)) {
             log.info("Не найдено бронирование");
             throw new NotFoundException("Не найдено бронирование");
         }
@@ -102,7 +102,6 @@ public class BookingService {
             log.info("Бронирование не найдено для пользователя");
             throw new NotFoundException("Бронирование не найдено для пользователя");
         }
-
     }
 
     private boolean isUserBooker(Booking booking, Long userId) {

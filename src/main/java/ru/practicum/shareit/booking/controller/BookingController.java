@@ -38,9 +38,7 @@ public class BookingController {
                 userService.getById(userId)
         );
         Booking createdBooking = bookingService.create(booking);
-        BookingResponseDto createdBookingRequestDto = BookingMapper.toBookingResponseDto(createdBooking);
-
-        return createdBookingRequestDto;
+        return BookingMapper.toBookingResponseDto(createdBooking);
     }
 
 
@@ -60,11 +58,8 @@ public class BookingController {
             @PathVariable Long bookingId,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
-        userService.getById(userId);
         Booking booking = bookingService.getById(bookingId, userId);
-        BookingResponseDto createdBookingRequestDto = BookingMapper.toBookingResponseDto(booking);
-
-        return createdBookingRequestDto;
+        return BookingMapper.toBookingResponseDto(booking);
     }
 
     @GetMapping
@@ -72,7 +67,6 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(required = false, defaultValue = "ALL") State state
     ) {
-
         return bookingService.getAllBookings(userId, state);
     }
 
@@ -81,7 +75,6 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam(required = false, defaultValue = "ALL") State state
     ) {
-
         return bookingService.getAllByOwner(userId, state);
     }
 }
