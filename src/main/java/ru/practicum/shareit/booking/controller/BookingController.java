@@ -9,10 +9,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.Service.UserService;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -53,12 +51,8 @@ public class BookingController {
             @RequestParam boolean approved
     ) {
 
-        userService.getById(userId);
-
         Booking booking = bookingService.approve(bookingId, userId, approved);
-        BookingResponseDto createdBookingRequestDto = BookingMapper.toBookingResponseDto(booking);
-
-        return createdBookingRequestDto;
+        return BookingMapper.toBookingResponseDto(booking);
     }
 
     @GetMapping("/{bookingId}")
@@ -67,7 +61,7 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         userService.getById(userId);
-        Booking booking = bookingService.findById(bookingId, userId);
+        Booking booking = bookingService.getById(bookingId, userId);
         BookingResponseDto createdBookingRequestDto = BookingMapper.toBookingResponseDto(booking);
 
         return createdBookingRequestDto;

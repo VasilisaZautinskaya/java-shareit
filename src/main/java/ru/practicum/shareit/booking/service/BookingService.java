@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -67,37 +66,36 @@ public class BookingService {
 
     public Booking approve(Long bookingId, Long userId, Boolean approved) {
 
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new NotFoundException("UserId не может быть null");
-        }
-        if (bookingId == null) {
-            log.info("Не найдено бронирование");
-            throw new NotFoundException("Не найдено бронирование");
-        }
-        Booking booking = findById(bookingId, userId);
-        if (!userId.equals(booking.getItem().getOwner().getId())) {
-            log.info("Не найдено бронирование");
-            throw new NotFoundException("Не найдено бронирование");
-        }
+        Booking booking = getById(bookingId, userId);
+        valildateThatUserIsOwner(userId, booking);
+        validateThatStatusIsFitForApprove(booking);
 
-        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-            log.info("Статус не может быть изменён");
-            throw new ValidateException("Статус не может быть изменён");
-        }
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
 
-
         return bookingRepository.save(booking);
     }
 
-    public Booking findById(Long bookingId, Long userId) {
+    private void valildateThatUserIsOwner(Long userId, Booking booking) {
+        if (!userId.equals(booking.getItem().getOwner().getId())) {
+            log.info("Не найдено бронирование");
+            throw new NotFoundException("Не найдено бронирование");
+        }
+    }
 
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(""));
+    private void validateThatStatusIsFitForApprove(Booking booking) {
+        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
+            log.info("Статус не может быть изменён");
+            throw new ValidateException("Статус не может быть изменён");
+        }
+    }
+
+    public Booking getById(Long bookingId, Long userId) {
+
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Не найдено бронирование"));
         if (isUserOwner(booking, userId) || isUserBooker(booking, userId)) {
             return booking;
         } else {
