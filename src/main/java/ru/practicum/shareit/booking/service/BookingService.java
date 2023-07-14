@@ -121,8 +121,9 @@ public class BookingService {
         return bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
     }
 
-    public List<BookingResponseDto> getAllByOwner(Long userId, State state) {
+    public List<BookingResponseDto> getAllByOwner(Long userId, String stateStr) {
         userService.getById(userId);
+        State state = getState(stateStr);
         switch (state) {
             case ALL:
                 return BookingMapper.toBookingResponseListDto(findAllByOwner(userId));
@@ -137,13 +138,14 @@ public class BookingService {
             case REJECTED:
                 return BookingMapper.toBookingResponseListDto(findAllRejectedByOwner(userId));
             default:
-                throw new WrongBookingStatus(state.toString());
+                throw new WrongBookingStatus(stateStr);
         }
 
     }
 
-    public List<BookingResponseDto> getAllBookings(Long userId, State state) {
+    public List<BookingResponseDto> getAllBookings(Long userId, String stateStr) {
         userService.getById(userId);
+        State state = getState(stateStr);
         switch (state) {
             case ALL:
                 return BookingMapper.toBookingResponseListDto(findAllByBooker(userId));
@@ -158,7 +160,15 @@ public class BookingService {
             case REJECTED:
                 return BookingMapper.toBookingResponseListDto(findAllRejectedByBooker(userId));
             default:
-                throw new WrongBookingStatus(state.toString());
+                throw new WrongBookingStatus(stateStr);
+        }
+    }
+
+    private State getState(String stateStr) {
+        try {
+            return State.valueOf(stateStr);
+        } catch (IllegalArgumentException e) {
+            throw new WrongBookingStatus(stateStr);
         }
     }
 
