@@ -15,8 +15,8 @@ import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.exception.WrongBookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 
 import java.time.LocalDateTime;
@@ -31,51 +31,37 @@ public class BookingService {
 
     private final JpaBookingRepository bookingRepository;
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
 
-    public Booking create(Booking booking, Long userId) {
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new NotFoundException("UserId не может быть null");
+    public Booking create(Booking booking) {
+
+        validateThatBookerIsNotOwner(booking.getItem(), booking.getBooker());
+        validateThatDateEndIsAfterDateStart(booking);
+        validateThatItemIsAvailable(booking);
+        setDefauldStatusIfRequired(booking);
+
+        return bookingRepository.save(booking);
+    }
+
+    private void setDefauldStatusIfRequired(Booking booking) {
+        if (booking.getStatus() == null) {
+            booking.setStatus(BookingStatus.WAITING);
         }
-        if (booking.getEnd() == null) {
-            log.info("Дата окончания бронирования не может быть null");
-            throw new ValidateException("Дата окончания бронирования не может быть null");
-        }
-        if (booking.getStart() == null) {
-            log.info("Дата начала бронирования не может быть null");
-            throw new ValidateException("Дата начала бронирования не может быть null");
-        }
-        if (booking.getEnd().isBefore(booking.getStart()) || booking.getStart().isEqual(booking.getEnd())) {
-            log.info("Дата окончания бронирования не может быть  раньше начала бронирования");
-            throw new ValidateException("Дата окончания бронирования не может быть  раньше начала бронирования");
-        }
-        if (booking.getStart().isBefore(LocalDateTime.now())) {
-            log.info("Дата начала бронирования не может быть в прошлом");
-            throw new ValidateException("Дата начала бронирования не может быть в прошлом");
-        }
-        if (booking.getItem() == null) {
-            log.info("Такая вещь не найдена");
-            throw new NotFoundException("Такая вещь не найдена");
-        }
-        if (booking.getItem().getId() == null) {
-            log.info("Такая вещь не найдена");
-            throw new NotFoundException("Такая вещь не найдена");
-        }
+    }
+
+    private void validateThatItemIsAvailable(Booking booking) {
         if (booking.getItem().getAvailable() == null || !booking.getItem().getAvailable()) {
             log.info("Вы не можете забронировать эту вещь");
             throw new ValidateException("Вы не можете забронировать эту вещь");
         }
-        if (booking.getBooker() == null) {
-            log.info("Такого пользователя нет");
-            throw new ValidateException("Такого пользователя нет");
-        }
-        if (booking.getStatus() == null) {
-            booking.setStatus(BookingStatus.WAITING);
-        }
+    }
 
-        return bookingRepository.save(booking);
+    private void validateThatDateEndIsAfterDateStart(Booking booking) {
+        if (booking.getEnd().isBefore(booking.getStart()) || booking.getStart().isEqual(booking.getEnd())) {
+            log.info("Дата окончания бронирования не может быть  раньше начала бронирования");
+            throw new ValidateException("Дата окончания бронирования не может быть  раньше начала бронирования");
+        }
     }
 
 
@@ -139,7 +125,7 @@ public class BookingService {
     }
 
     public List<BookingResponseDto> getAllByOwner(Long userId, State state) {
-        validateAndGetUser(userId);
+        userService.getById(userId);
         switch (state) {
             case ALL:
                 return BookingMapper.toBookingResponseListDto(findAllByOwner(userId));
@@ -160,7 +146,7 @@ public class BookingService {
     }
 
     public List<BookingResponseDto> getAllBookings(Long userId, State state) {
-        validateAndGetUser(userId);
+        userService.getById(userId);
         switch (state) {
             case ALL:
                 return BookingMapper.toBookingResponseListDto(findAllByBooker(userId));
@@ -179,16 +165,8 @@ public class BookingService {
         }
     }
 
-    public void validateCreateBooking(BookingRequestDto bookingRequestDto, Item item, User user) {
-        if (bookingRequestDto.getEnd() == null) {
-            log.info("Время окончания бронирования не указано");
-            throw new ValidateException("Время окончания бронирования не указано");
-        }
-        if (bookingRequestDto.getStart() == null) {
-            log.info("Время начала бронирования не указано");
-            throw new ValidateException("Время начала бронирования не указано");
-        }
-        if (Objects.equals(item.getOwner().getId(), user.getId())) {
+    public void validateThatBookerIsNotOwner(Item item, User booker) {
+        if (Objects.equals(item.getOwner().getId(), booker.getId())) {
             log.info("Вы не можете арендовать свою вещь");
             throw new NotFoundException("Вы не можете арендовать свою вещь");
         }
@@ -276,31 +254,4 @@ public class BookingService {
                         && o.getStatus().equals(BookingStatus.APPROVED)
                         && o.getEnd().isBefore(LocalDateTime.now()));
     }
-
-    public Item validateAndGetItem(Long itemId) {
-        if (itemId == null) {
-            log.info("Вещь с таким id  не найдена");
-            throw new ValidateException("Вещь с таким id  не найдена");
-        }
-        Item item = itemRepository.findById(itemId);
-        if (item == null) {
-            log.info("Вещь не найдена");
-            throw new NotFoundException("Вещь не найдена");
-        }
-        return item;
-    }
-
-    public User validateAndGetUser(Long userId) {
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new ValidateException("UserId не может быть null");
-        }
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            log.info("Пользователь не найден");
-            throw new NotFoundException("Не найден пользователь");
-        }
-        return user;
-    }
-
 }

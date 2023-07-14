@@ -6,6 +6,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -21,8 +22,11 @@ public class BookingRequestDto {
     @NotNull
     @Future
     private LocalDateTime end;
+    @NotNull
     private Long itemId;
+
     private Long bookerId;
+
     private BookingStatus status;
 
 }

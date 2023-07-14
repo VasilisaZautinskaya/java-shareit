@@ -31,7 +31,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public @ResponseBody UserDto getUserById(@PathVariable Long userId) {
-        User getdUser = userService.getUserById(userId);
+        User getdUser = userService.getById(userId);
         if (getdUser == null) {
             throw new NotFoundException("Не найден пользователь");
         }

@@ -94,9 +94,14 @@ public class ItemService {
     }
 
 
-    public Item findById(Long itemId) {
+    public Item getById(Long itemId) {
 
-        return itemRepository.findById(itemId);
+        Item item = itemRepository.findById(itemId);
+        if (item == null) {
+            log.info("Вещь не найдена");
+            throw new NotFoundException("Вещь не найдена");
+        }
+        return item;
     }
 
     public List<Item> findAll(Long userId) {
@@ -122,7 +127,7 @@ public class ItemService {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        Item item = findById(itemId);
+        Item item = getById(itemId);
         if (itemId == null) {
             log.error("Вещь с таким id  не найдена");
             throw new NotFoundException("Вещь с таким id  не найдена");

@@ -44,7 +44,7 @@ public class ItemController {
     public @ResponseBody ItemWithBookingDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                         @PathVariable Long itemId) {
 
-        Item item = itemService.findById(itemId);
+        Item item = itemService.getById(itemId);
         if (item == null) {
             throw new NotFoundException("Вещь не найдена");
         }
