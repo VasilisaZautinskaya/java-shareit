@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
@@ -47,19 +46,9 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable Long itemId
     ) {
-
         Item item = itemService.getById(itemId);
-
-        Booking nextItemBooking = null;
-        Booking lastItemBooking = null;
-        if (Objects.equals(item.getOwner().getId(), userId)) {
-            nextItemBooking = bookingService.getNextBookingForItem(itemId);
-            lastItemBooking = bookingService.getLastBookingForItem(itemId);
-        }
-
         List<Comment> comments = itemService.findAllByItemId(itemId);
-        ItemWithBookingDto getItemDto = ItemMapper.toItemWithBookingDto(item, lastItemBooking, nextItemBooking, comments);
-        return getItemDto;
+        return toItemWithBookingDto(userId, item, comments);
     }
 
     @PatchMapping("/{itemId}")
@@ -83,19 +72,19 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         List<ItemWithBookingDto> allItemDto = itemService.findAll(userId).stream()
-
-                .map(item -> {
-                            Booking lastItemBooking = null;
-                            Booking nextItemBooking = null;
-                            if (Objects.equals(item.getOwner().getId(), userId)) {
-                                lastItemBooking = bookingService.getLastBookingForItem(item.getId());
-                                nextItemBooking = bookingService.getNextBookingForItem(item.getId());
-                            }
-                            return ItemMapper.toItemWithBookingDto(item, lastItemBooking, nextItemBooking, Collections.emptyList());
-                        }
-                )
+                .map(item -> toItemWithBookingDto(userId, item, Collections.emptyList()))
                 .collect(Collectors.toList());
         return allItemDto;
+    }
+
+    private ItemWithBookingDto toItemWithBookingDto(Long userId, Item item, List<Comment> comments) {
+        Booking lastItemBooking = null;
+        Booking nextItemBooking = null;
+        if (Objects.equals(item.getOwner().getId(), userId)) {
+            lastItemBooking = bookingService.getLastBookingForItem(item.getId());
+            nextItemBooking = bookingService.getNextBookingForItem(item.getId());
+        }
+        return ItemMapper.toItemWithBookingDto(item, lastItemBooking, nextItemBooking, comments);
     }
 
     @GetMapping("/search")
