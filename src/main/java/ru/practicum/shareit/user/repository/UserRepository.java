@@ -1,25 +1,18 @@
 package ru.practicum.shareit.user.repository;
 
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
-
-@Repository
 public interface UserRepository {
 
-    long generatedId();
-
-    User getUser(Long userId);
+    User findById(Long userId);
 
     User save(User user);
 
-    User updateUser(Long userId, User user);
+    void deleteById(long userId);
 
-    void remove(long userId);
-
-    List<User> getAllUsers();
+    List<User> findAll();
 
     User getUserByEmail(String email);
 

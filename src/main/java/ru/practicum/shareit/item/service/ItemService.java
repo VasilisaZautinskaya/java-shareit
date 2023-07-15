@@ -3,15 +3,20 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,51 +24,22 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class ItemService {
-    ItemRepository itemRepository;
-    UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final UserService userService;
+    private final CommentRepository commentRepository;
+    private final BookingService bookingService;
 
 
     public Item createItem(Item item, Long userId) {
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new ValidateException("UserId не может быть null");
-        }
-        User user = userRepository.getUser(userId);
-        if (user == null) {
-            log.info("Такой пользователь не найден");
-            throw new NotFoundException("Такой пользователь не найден");
-        }
-        if (item.getAvailable() == null) {
-            log.info("Вещь должна быть доступна для бронирования");
-            throw new ValidateException("Вещь должна быть доступна для бронирования");
-
-        }
-        if (item.getName().isEmpty()) {
-            log.info("Имя не может быть null");
-            throw new ValidateException("Имя не может быть null");
-        }
-        if (item.getDescription() == null) {
-            log.info("Описание не может быть null");
-            throw new ValidateException("Описание не может быть null");
-        }
-        item.setOwner(user);
-        return itemRepository.createItem(item);
-
+        item.setOwner(userService.getById(userId));
+        return itemRepository.save(item);
     }
 
     public Item update(Long itemId, Item item, Long userId) {
-        Item oldItem = itemRepository.getItem(itemId);
 
-        if (userId == null) {
-            log.info("UserId не может быть null");
-            throw new ValidateException("UserId не может быть null");
-        }
+        Item oldItem = itemRepository.findById(itemId);
+        validateThatUserIsOwner(userId, oldItem);
 
-        if (!oldItem.getOwner().getId().equals(userId)) {
-            log.info("Нельзя обновить вещь, принадлежащую другому пользователю");
-            throw new ForbiddenException("Нельзя обновить вещь, принадлежащую другому пользователю");
-
-        }
         if (item.getName() != null) {
             oldItem.setName(item.getName());
         }
@@ -77,27 +53,65 @@ public class ItemService {
             oldItem.setDescription(item.getDescription());
         }
 
-        return itemRepository.update(oldItem);
+        return itemRepository.save(oldItem);
+    }
+
+    private void validateThatUserIsOwner(Long userId, Item oldItem) {
+        if (!oldItem.getOwner().getId().equals(userId)) {
+            log.info("Нельзя обновить вещь, принадлежащую другому пользователю");
+            throw new ForbiddenException("Нельзя обновить вещь, принадлежащую другому пользователю");
+        }
     }
 
 
-    public void remove(long itemId) {
-
-        itemRepository.remove(itemId);
-
+    public void deleteById(long itemId) {
+        itemRepository.deleteById(itemId);
     }
 
 
-    public Item getItemById(Long itemId) {
-        return itemRepository.getItem(itemId);
+    public Item getById(Long itemId) {
+
+        Item item = itemRepository.findById(itemId);
+        if (item == null) {
+            log.info("Вещь не найдена");
+            throw new NotFoundException("Вещь не найдена");
+        }
+        return item;
     }
 
-    public List<Item> getAll(Long userId) {
-        return itemRepository.getAll(userId);
+    public List<Item> findAll(Long userId) {
+        return itemRepository.findAll(userId);
     }
 
     public List<Item> getItemsByText(String text) {
-
-        return itemRepository.getItemByText(text);
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return itemRepository.getSearch(text);
     }
+
+    public Comment postComment(Long itemId, Long userId, Comment comment) {
+
+        User user = userService.getById(userId);
+        Item item = getById(itemId);
+
+        validateThatUserHadBookedItem(user, item);
+
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
+        return commentRepository.save(comment);
+    }
+
+    private void validateThatUserHadBookedItem(User user, Item item) {
+        if (!bookingService.isUserBookedItem(user, item)) {
+            log.info("Вы не можете оставить комментарий, так как не бронировали эту вещь");
+            throw new ValidateException("Вы не можете оставить комментарий, так как не бронировали эту вещь");
+        }
+    }
+
+    public List<Comment> findAllByItemId(Long itemId) {
+        return commentRepository.findAllByItemId(itemId);
+    }
+
 }

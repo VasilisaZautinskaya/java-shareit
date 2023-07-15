@@ -1,24 +1,19 @@
 package ru.practicum.shareit.item.repository;
 
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
-@Repository
+
 public interface ItemRepository {
 
-    Item createItem(Item item);
+    Item save(Item item);
 
-    Item update(Item item);
+    void deleteById(long itemId);
 
-    void remove(long itemId);
+    List<Item> findAll(Long userId);
 
-    List<Item> getAll(Long userId);
+    Item findById(Long itemId);
 
-    long generatedId();
-
-    Item getItem(Long itemId);
-
-    List<Item> getItemByText(String text);
+    List<Item> getSearch(String text);
 }
