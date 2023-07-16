@@ -68,9 +68,10 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .lastBooking(BookingMapper.mapToBookingForItemDto(lastItemBooking))
                 .nextBooking(BookingMapper.mapToBookingForItemDto(nextItemBooking))
-                .comments(CommentMaper.toCommentDtoList(comments))
+                .comments(CommentMapper.toCommentDtoList(comments))
                 .build();
     }
+
 }
 
 

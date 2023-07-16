@@ -13,15 +13,12 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.exception.WrongBookingStatus;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-
 
 @Slf4j
 @Service
@@ -29,9 +26,7 @@ import java.util.Objects;
 public class BookingService {
 
     private final JpaBookingRepository bookingRepository;
-    private final ItemRepository itemRepository;
     private final UserService userService;
-
 
     public Booking create(Booking booking) {
 

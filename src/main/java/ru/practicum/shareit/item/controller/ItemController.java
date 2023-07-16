@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
-import ru.practicum.shareit.item.mapper.CommentMaper;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -33,11 +33,12 @@ public class ItemController {
     @PostMapping
     public @ResponseBody ItemDto createItem(
             @Valid @RequestBody ItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable(required = false) Long requestId
     ) {
 
         Item item = ItemMapper.toItem(itemDto);
-        Item createdItem = itemService.createItem(item, userId);
+        Item createdItem = itemService.createItem(item, userId, requestId);
         return ItemMapper.toItemDto(createdItem);
     }
 
@@ -91,7 +92,7 @@ public class ItemController {
     public @ResponseBody List<ItemDto> findItemByParams(
             @RequestParam String text
     ) {
-        return ItemMapper.toItemDtoList(itemService.getItemsByText(text));
+        return ItemMapper.toItemDtoList(itemService.findItemsByText(text));
     }
 
     @PostMapping("/{itemId}/comment")
@@ -100,9 +101,9 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @Valid @RequestBody CommentDto commentDto
     ) {
-        Comment comment = CommentMaper.toComment(commentDto);
+        Comment comment = CommentMapper.toComment(commentDto);
         Comment postComment = itemService.postComment(itemId, userId, comment);
-        return CommentMaper.toCommentDto(postComment);
+        return CommentMapper.toCommentDto(postComment);
     }
 
 }

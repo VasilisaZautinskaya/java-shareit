@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
 
@@ -29,9 +30,14 @@ public class ItemService {
     private final CommentRepository commentRepository;
     private final BookingService bookingService;
 
+    private final ItemRequestService itemRequestService;
 
-    public Item createItem(Item item, Long userId) {
+
+    public Item createItem(Item item, Long userId, Long requestId) {
         item.setOwner(userService.getById(userId));
+        if (requestId == null) {
+
+        }
         return itemRepository.save(item);
     }
 
@@ -83,7 +89,7 @@ public class ItemService {
         return itemRepository.findAll(userId);
     }
 
-    public List<Item> getItemsByText(String text) {
+    public List<Item> findItemsByText(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }

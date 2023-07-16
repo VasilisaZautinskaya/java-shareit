@@ -27,19 +27,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static BookingRequestDto toBookingDto(Booking booking) {
-        if (booking == null) {
-            return null;
-        }
-        return BookingRequestDto.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .itemId(booking.getItem().getId())
-                .bookerId(booking.getBooker().getId())
-                .status(booking.getStatus())
-                .build();
-    }
+
 
     public static BookingResponseDto toBookingResponseDto(Booking booking) {
         if (booking == null) {
