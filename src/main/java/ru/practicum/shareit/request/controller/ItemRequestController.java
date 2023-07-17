@@ -3,7 +3,6 @@ package ru.practicum.shareit.request.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -60,22 +59,27 @@ public class ItemRequestController {
 
     }
 
-    /*  @GetMapping("/all")
-      public @ResponseBody List<ItemRequestDto> getAllItemRequests(@RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId,
-                                                                   @RequestParam(defaultValue = "0", required = false) int from,
-                                                                   @RequestParam(defaultValue = "10", required = false) int size) {
-          if (userId == null) {
-              log.info("");
-              throw new ValidateException("");
-          }
+    @GetMapping("/all")
+    public @ResponseBody List<ItemRequestResponseDto> getAllItemRequests(@RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId,
+                                                                         @RequestParam(defaultValue = "0", required = false) int from,
+                                                                         @RequestParam(defaultValue = "10", required = false) int size) {
+        List<ItemRequest> itemRequests = itemRequestService.findAllItemRequests(userId, from, size);
+        List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
+        for (ItemRequest itemRequest : itemRequests
+        ) {
+            List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
+            ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
+            itemRequestResponseDtoList.add(itemRequestResponseDto);
+        }
 
-          return ItemRequestMapper.toItemRequestDtoList(itemRequestService.getAllItemRequests(userId, from, size));
-      }
+        return itemRequestResponseDtoList;
+    }
 
-     */
+
     @GetMapping("/{requestId}")
-    public @ResponseBody ItemRequestDto findById(@PathVariable Long requestId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public @ResponseBody ItemRequestResponseDto findById(@PathVariable Long requestId, @RequestHeader("X-Sharer-User-Id") Long userId) {
         ItemRequest itemRequest = itemRequestService.findById(requestId, userId);
-        return ItemRequestMapper.toItemRequestDto(itemRequest);
+        List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
+        return ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
     }
 }

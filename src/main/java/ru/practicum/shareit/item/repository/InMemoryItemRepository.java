@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 
@@ -62,6 +64,11 @@ public class InMemoryItemRepository implements ItemRepository {
             }
         }
         return searchedItems;
+    }
+
+    @Override
+    public List<Item> findAllByRequestId(Long requestId) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -104,9 +105,9 @@ public class BookingService {
     }
 
     private boolean isUserOwner(Booking booking, Long userId) {
-
         return Objects.equals(booking.getItem().getOwner().getId(), userId);
     }
+
 
     public List<Booking> findAllByBooker(Long userId) {
         if (userId == null) {
@@ -116,44 +117,58 @@ public class BookingService {
         return bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
     }
 
-    public List<BookingResponseDto> getAllByOwner(Long userId, String stateStr) {
+    public List<Booking> findAllByBooker(Long userId, int from, int size) {
+        if (userId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from / size;
+        return bookingRepository.findAllByBookerIdOrderByStartDesc(userId, PageRequest.of(pageNum, size));
+    }
+
+    public List<BookingResponseDto> findAllByOwner(Long userId, String stateStr, int from, int size) {
         userService.getById(userId);
+        int pageNum = from / size;
+        PageRequest.of(pageNum, size);
         State state = getState(stateStr);
         switch (state) {
             case ALL:
-                return BookingMapper.toBookingResponseListDto(findAllByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllByOwner(userId, from, size));
             case CURRENT:
-                return BookingMapper.toBookingResponseListDto(findAllCurrentByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllCurrentByOwner(userId, from, size));
             case PAST:
-                return BookingMapper.toBookingResponseListDto(findAllPastByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllPastByOwner(userId, from, size));
             case FUTURE:
-                return BookingMapper.toBookingResponseListDto(findAllFutureByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllFutureByOwner(userId, from, size));
             case WAITING:
-                return BookingMapper.toBookingResponseListDto(findAllWaitingByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllWaitingByOwner(userId, from, size));
             case REJECTED:
-                return BookingMapper.toBookingResponseListDto(findAllRejectedByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllRejectedByOwner(userId, from, size));
             default:
                 throw new WrongBookingStatus(stateStr);
         }
 
     }
 
-    public List<BookingResponseDto> getAllBookings(Long userId, String stateStr) {
+    public List<BookingResponseDto> findAllBookings(Long userId, String stateStr, int from, int size) {
         userService.getById(userId);
         State state = getState(stateStr);
         switch (state) {
             case ALL:
-                return BookingMapper.toBookingResponseListDto(findAllByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllByBooker(userId, from, size));
             case CURRENT:
-                return BookingMapper.toBookingResponseListDto(findAllCurrentByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllCurrentByBooker(userId, from, size));
             case PAST:
-                return BookingMapper.toBookingResponseListDto(findAllPastByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllPastByBooker(userId, from, size));
             case FUTURE:
-                return BookingMapper.toBookingResponseListDto(findAllFutureByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllFutureByBooker(userId, from, size));
             case WAITING:
-                return BookingMapper.toBookingResponseListDto(findAllWaitingByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllWaitingByBooker(userId, from, size));
             case REJECTED:
-                return BookingMapper.toBookingResponseListDto(findAllRejectedByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllRejectedByBooker(userId, from, size));
             default:
                 throw new WrongBookingStatus(stateStr);
         }
@@ -180,9 +195,28 @@ public class BookingService {
         return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
     }
 
+    public List<Booking> findAllCurrentByBooker(Long userId, int from, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from / size;
+        return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                userId,
+                now,
+                now,
+                PageRequest.of(pageNum, size));
+    }
+
     public List<Booking> findAllPastByBooker(Long userId) {
         LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
+    }
+
+    public List<Booking> findAllPastByBooker(Long userId, int from, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        int pageNum = from / size;
+        return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now, PageRequest.of(pageNum, size));
     }
 
     public List<Booking> findAllFutureByBooker(Long userId) {
@@ -190,12 +224,28 @@ public class BookingService {
         return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, now);
     }
 
+    public List<Booking> findAllFutureByBooker(Long userId, int from, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        int pageNum = from / size;
+        return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, now, PageRequest.of(pageNum, size));
+    }
+
     public List<Booking> findAllWaitingByBooker(Long userId) {
         return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
     }
 
+    public List<Booking> findAllWaitingByBooker(Long userId, int from, int size) {
+        int pageNum = from / size;
+        return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, PageRequest.of(pageNum, size));
+    }
+
     public List<Booking> findAllRejectedByBooker(Long userId) {
         return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+    }
+
+    public List<Booking> findAllRejectedByBooker(Long userId, int from, int size) {
+        int pageNum = from / size;
+        return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, PageRequest.of(pageNum, size));
     }
 
     public List<Booking> findAllByOwner(Long ownerId) {
@@ -206,10 +256,25 @@ public class BookingService {
         return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
     }
 
+    public List<Booking> findAllByOwner(Long ownerId, int from, int size) {
+        if (ownerId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+        int pageNum = from / size;
+        return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(pageNum, size));
+    }
+
 
     public List<Booking> findAllCurrentByOwner(Long ownerId) {
         LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
+    }
+
+    public List<Booking> findAllCurrentByOwner(Long ownerId, int from, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        int pageNum = from / size;
+        return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now, PageRequest.of(pageNum, size));
     }
 
     public List<Booking> findAllPastByOwner(Long ownerId) {
@@ -217,17 +282,46 @@ public class BookingService {
         return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
     }
 
+    public List<Booking> findAllPastByOwner(Long ownerId, int from, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        int pageNum = from / size;
+        return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now, PageRequest.of(pageNum, size));
+    }
+
     public List<Booking> findAllFutureByOwner(Long ownerId) {
         LocalDateTime now = LocalDateTime.now();
         return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
+    }
+
+    public List<Booking> findAllFutureByOwner(Long ownerId, int from, int size) {
+        LocalDateTime now = LocalDateTime.now();
+        int pageNum = from / size;
+        return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now, PageRequest.of(pageNum, size));
     }
 
     public List<Booking> findAllWaitingByOwner(Long ownerId) {
         return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
     }
 
+    public List<Booking> findAllWaitingByOwner(Long ownerId, int from, int size) {
+        int pageNum = from / size;
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                ownerId,
+                BookingStatus.WAITING,
+                PageRequest.of(pageNum, size)
+        );
+    }
+
     public List<Booking> findAllRejectedByOwner(Long ownerId) {
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                ownerId,
+                BookingStatus.REJECTED
+        );
+    }
+
+    public List<Booking> findAllRejectedByOwner(Long ownerId, int from, int size) {
+        int pageNum = from / size;
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED, PageRequest.of(pageNum, size));
     }
 
     public Booking getLastBookingForItem(Long itemId) {

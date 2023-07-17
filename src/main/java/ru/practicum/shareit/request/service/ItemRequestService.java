@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.Service.UserService;
@@ -22,6 +22,8 @@ import java.util.Optional;
 public class ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
+
+
 
     public ItemRequest createItemRequest(ItemRequest itemRequest, Long userId) {
         if (userId == null) {
@@ -39,27 +41,23 @@ public class ItemRequestService {
     }
 
 
-
-    /*   public List<ItemRequest> getAllItemRequests(Long userId, int from, int size) {
-           if (from < 0 || size < 1) {
-               log.info("");
-               throw new ValidateException("");
-           }
-           if (userService.getById(userId) == null) {
-               log.info("");
-               throw new NotFoundException("");
-           }
-           PageRequest page = PageRequest.of(from, size);
-
-          return Page<ItemRequest> itemRequestList = itemRequestRepository.findByOrderByCreatedDesc(page);
-
-
-       }*/
-    public ItemRequest findById(Long requestId, Long userId) {
-        User user = userService.getById(userId);
-        if (user == null) {
-            throw new NotFoundException("Такой запрос не найден");
+    public List<ItemRequest> findAllItemRequests(Long userId, int from, int size) {
+        if (from < 0 || size < 1) {
+            log.info("");
+            throw new ValidateException("");
         }
+        userService.getById(userId);
+
+        PageRequest page = PageRequest.of(from, size);
+
+        Page<ItemRequest> itemRequestList = itemRequestRepository.findByOrderByCreatedDesc(page);
+
+        return itemRequestList.toList();
+
+    }
+
+    public ItemRequest findById(Long requestId, Long userId) {
+        userService.getById(userId);
         Optional<ItemRequest> itemRequest = itemRequestRepository.findById(requestId);
         if (itemRequest.isEmpty()) {
             throw new NotFoundException("Такой запрос не найден");
