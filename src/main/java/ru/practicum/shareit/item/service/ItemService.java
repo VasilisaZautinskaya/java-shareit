@@ -33,11 +33,8 @@ public class ItemService {
     private final ItemRequestService itemRequestService;
 
 
-    public Item createItem(Item item, Long userId, Long requestId) {
+    public Item createItem(Item item, Long userId) {
         item.setOwner(userService.getById(userId));
-        if (requestId == null) {
-
-        }
         return itemRepository.save(item);
     }
 
@@ -120,4 +117,7 @@ public class ItemService {
         return commentRepository.findAllByItemId(itemId);
     }
 
+    public List<Item> findAllItemForRequest(Long requestId) {
+        return itemRepository.findAllByRequestId(requestId);
+    }
 }

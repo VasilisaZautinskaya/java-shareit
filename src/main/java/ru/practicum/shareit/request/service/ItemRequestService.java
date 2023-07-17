@@ -34,17 +34,11 @@ public class ItemRequestService {
 
 
     public List<ItemRequest> findAllItemRequest(Long userId) {
-        User user = userService.getById(userId);
-        if (user == null) {
-            log.info("Такой пользователь не найден");
-            throw new NotFoundException("Такой пользователь не найден");
-        }
+        userService.getById(userId);
         return itemRequestRepository.findAllByRequestorId(userId);
     }
 
-    public List<Item> findAllItem(Long requestId) {
-        return itemRequestRepository.findAllByRequestId(requestId);
-    }
+
 
     /*   public List<ItemRequest> getAllItemRequests(Long userId, int from, int size) {
            if (from < 0 || size < 1) {

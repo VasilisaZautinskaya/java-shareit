@@ -33,12 +33,11 @@ public class ItemController {
     @PostMapping
     public @ResponseBody ItemDto createItem(
             @Valid @RequestBody ItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable(required = false) Long requestId
+            @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
 
         Item item = ItemMapper.toItem(itemDto);
-        Item createdItem = itemService.createItem(item, userId, requestId);
+        Item createdItem = itemService.createItem(item, userId);
         return ItemMapper.toItemDto(createdItem);
     }
 
