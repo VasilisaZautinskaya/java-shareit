@@ -32,7 +32,7 @@ public class UserController {
     public @ResponseBody UserDto getUserById(
             @PathVariable Long userId
     ) {
-        return UserMapper.toUserDto(userService.getById(userId));
+        return UserMapper.toUserDto(userService.findById(userId));
     }
 
     @PatchMapping("/{userId}")

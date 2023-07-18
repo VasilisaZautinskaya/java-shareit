@@ -34,7 +34,7 @@ public class ItemService {
 
 
     public Item createItem(Item item, Long userId) {
-        item.setOwner(userService.getById(userId));
+        item.setOwner(userService.findById(userId));
         return itemRepository.save(item);
     }
 
@@ -95,7 +95,7 @@ public class ItemService {
 
     public Comment postComment(Long itemId, Long userId, Comment comment) {
 
-        User user = userService.getById(userId);
+        User user = userService.findById(userId);
         Item item = getById(itemId);
 
         validateThatUserHadBookedItem(user, item);

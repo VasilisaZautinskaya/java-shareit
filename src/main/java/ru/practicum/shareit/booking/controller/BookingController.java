@@ -34,7 +34,7 @@ public class BookingController {
         Booking booking = BookingMapper.toBooking(
                 bookingRequestDto,
                 itemService.getById(bookingRequestDto.getItemId()),
-                userService.getById(userId)
+                userService.findById(userId)
         );
         Booking createdBooking = bookingService.create(booking);
         return BookingMapper.toBookingResponseDto(createdBooking);

@@ -18,6 +18,7 @@ public class ItemRequestMapper {
                 .id(itemRequestDto.getId())
                 .description(itemRequestDto.getDescription())
                 .requestor(user)
+                .created(itemRequestDto.getCreated())
                 .build();
     }
 
@@ -26,6 +27,7 @@ public class ItemRequestMapper {
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
                 .requestorId(itemRequest.getRequestor().getId())
+                .created(itemRequest.getCreated())
                 .build();
     }
 
@@ -45,6 +47,7 @@ public class ItemRequestMapper {
                 .description(itemRequest.getDescription())
                 .requestorId(itemRequest.getRequestor().getId())
                 .items(ItemMapper.toItemDtoList(items))
+                .created(itemRequest.getCreated())
                 .build();
     }
 

@@ -29,21 +29,21 @@ public class ItemRequestController {
 
 
     @PostMapping
-    public @ResponseBody ItemRequestResponseDto createRequest(
+    public @ResponseBody ItemRequestResponseDto create(
             @Valid @RequestBody ItemRequestDto itemRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(
                 itemRequestDto,
-                userService.getById(userId)
+                userService.findById(userId)
         );
-        ItemRequest createdItemRequest = itemRequestService.createItemRequest(itemRequest, userId);
+        ItemRequest createdItemRequest = itemRequestService.createItemRequest(itemRequest);
         List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
         return ItemRequestMapper.toItemRequestResponseDto(createdItemRequest, items);
     }
 
     @GetMapping
-    public @ResponseBody List<ItemRequestResponseDto> getItemsByUserId(
+    public @ResponseBody List<ItemRequestResponseDto> getById(
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequest(userId);
