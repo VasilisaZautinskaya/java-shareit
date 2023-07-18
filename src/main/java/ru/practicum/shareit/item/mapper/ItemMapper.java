@@ -20,12 +20,18 @@ public class ItemMapper {
         if (item == null) {
             return null;
         }
+        Long requestId = null;
+        if (item.getRequest() != null) {
+            requestId = item.getRequest().getId();
+        }
+
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .owner(item.getOwner())
+                .requestId(requestId)
                 .build();
     }
 

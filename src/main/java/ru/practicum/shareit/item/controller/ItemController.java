@@ -37,7 +37,8 @@ public class ItemController {
     ) {
 
         Item item = ItemMapper.toItem(itemDto);
-        Item createdItem = itemService.createItem(item, userId);
+        Long requestId = itemDto.getRequestId();
+        Item createdItem = itemService.createItem(item, userId, requestId);
         return ItemMapper.toItemDto(createdItem);
     }
 

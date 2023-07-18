@@ -33,8 +33,11 @@ public class ItemService {
     private final ItemRequestService itemRequestService;
 
 
-    public Item createItem(Item item, Long userId) {
+    public Item createItem(Item item, Long userId, Long requestId) {
         item.setOwner(userService.findById(userId));
+        if (requestId != null) {
+            item.setRequest(itemRequestService.findByIdSilent(requestId));
+        }
         return itemRepository.save(item);
     }
 

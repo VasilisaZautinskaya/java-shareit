@@ -361,7 +361,7 @@ public class BookingService {
     }
 
     public List<Booking> findAllWaitingByOwner(Long ownerId) {
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(ownerId, BookingStatus.WAITING);
     }
 
     public List<Booking> findAllWaitingByOwner(Long ownerId, int from, int size) {
@@ -370,7 +370,7 @@ public class BookingService {
             throw new IllegalArgumentException("Wrong page number");
         }
         int pageNum = from / size;
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
                 ownerId,
                 BookingStatus.WAITING,
                 PageRequest.of(pageNum, size)
@@ -378,7 +378,7 @@ public class BookingService {
     }
 
     public List<Booking> findAllRejectedByOwner(Long ownerId) {
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
                 ownerId,
                 BookingStatus.REJECTED
         );
@@ -390,7 +390,7 @@ public class BookingService {
             throw new ValidateException("Wrong page number");
         }
         int pageNum = from / size;
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED, PageRequest.of(pageNum, size));
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(ownerId, BookingStatus.REJECTED, PageRequest.of(pageNum, size));
     }
 
     public Booking getLastBookingForItem(Long itemId) {

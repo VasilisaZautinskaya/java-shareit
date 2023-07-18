@@ -10,7 +10,6 @@ import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.Service.UserService;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,10 +47,14 @@ public class ItemRequestService {
 
         PageRequest page = PageRequest.of(from, size);
 
-        Page<ItemRequest> itemRequestList = itemRequestRepository.findByOrderByCreatedDesc(page);
+        Page<ItemRequest> itemRequestList = itemRequestRepository.findAllByRequestorIdNotOrderByCreatedDesc(userId, page);
 
         return itemRequestList.toList();
 
+    }
+
+    public ItemRequest findByIdSilent(Long requestId) {
+        return itemRequestRepository.findById(requestId).orElse(null);
     }
 
     public ItemRequest findById(Long requestId, Long userId) {
