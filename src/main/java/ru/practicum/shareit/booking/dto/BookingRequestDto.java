@@ -1,7 +1,9 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import javax.validation.constraints.Future;
@@ -9,23 +11,29 @@ import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Data
-public class BookingRequestDto {
-    private Long id;
+public class BookingRequestDto implements Comparable<BookingRequestDto> {
+    protected Long id;
 
     @NotNull
     @FutureOrPresent
-    private LocalDateTime start;
+    protected LocalDateTime start;
 
     @NotNull
     @Future
-    private LocalDateTime end;
+    protected LocalDateTime end;
     @NotNull
-    private Long itemId;
+    protected Long itemId;
 
-    private Long bookerId;
+    protected Long bookerId;
 
-    private BookingStatus status;
+    protected BookingStatus status;
 
+    @Override
+    public int compareTo(BookingRequestDto o) {
+        return this.getStart().compareTo(o.getStart());
+    }
 }
