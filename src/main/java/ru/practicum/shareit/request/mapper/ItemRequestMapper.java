@@ -32,15 +32,6 @@ public class ItemRequestMapper {
     }
 
 
-    public static List<ItemRequestDto> toItemRequestDtoList(List<ItemRequest> itemRequests) {
-        List<ItemRequestDto> dtolist = new ArrayList<>();
-        for (ItemRequest itemRequest : itemRequests) {
-            ItemRequestDto itemRequestDto = toItemRequestDto(itemRequest);
-            dtolist.add(itemRequestDto);
-        }
-        return dtolist;
-    }
-
     public static ItemRequestResponseDto toItemRequestResponseDto(ItemRequest itemRequest, List<Item> items) {
         return ItemRequestResponseDto.builder()
                 .id(itemRequest.getId())
