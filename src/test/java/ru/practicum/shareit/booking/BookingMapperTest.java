@@ -7,8 +7,11 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.dto.BookingForItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.testData.BookingTestData;
+import ru.practicum.shareit.testData.ItemRequestTestData;
 import ru.practicum.shareit.testData.ItemTestData;
 import ru.practicum.shareit.testData.UserTestData;
 import ru.practicum.shareit.user.model.User;
@@ -75,13 +78,40 @@ public class BookingMapperTest {
 
     @Test
     void toBookingResponseListDto() {
-//        List<Booking> bookingList = new ArrayList<>();
-//        Booking lastBooking = new Booking(1L, LocalDateTime.now().minusHours(6), LocalDateTime.now().minusHours(2), item, user, BookingStatus.APPROVED);
-//        Booking nextBooking = new Booking(2L, LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(1), item, user, BookingStatus.WAITING);
+        List<Booking> bookingList = new ArrayList<>();
+        User user = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
+        Item item = ItemTestData.getItemOne(itemRequest, user);
+        Booking lastBooking = BookingTestData.getBookingOne(user, item);
+        Booking startBooking = BookingTestData.getBookingTwo(user, item);
+
+        bookingList.add(lastBooking);
+        bookingList.add(startBooking);
+
+        List<BookingResponseDto> bookingResponseDtoList = BookingMapper.toBookingResponseListDto(bookingList);
+
+        Assertions.assertThat(bookingResponseDtoList.size()).isEqualTo(2);
     }
 
     @Test
     void mapToBookingForItemDto() {
+        User user = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
+        Item item = ItemTestData.getItemOne(itemRequest, user);
+        Booking booking = BookingTestData.getBookingOne(user, item);
+
+        BookingForItemDto bookingForItemDto = BookingMapper.mapToBookingForItemDto(booking);
+
+        Assertions.assertThat(bookingForItemDto.getId()).isEqualTo(booking.getId());
+        Assertions.assertThat(bookingForItemDto.getBookerId()).isEqualTo(booking.getBooker().getId());
+
+
+    }
+
+    @Test
+    void mapToBookingForItemDtoNull() {
+        BookingForItemDto bookingForItemDto = BookingMapper.mapToBookingForItemDto(null);
+        Assertions.assertThat(bookingForItemDto).isNull();
     }
 
 }
