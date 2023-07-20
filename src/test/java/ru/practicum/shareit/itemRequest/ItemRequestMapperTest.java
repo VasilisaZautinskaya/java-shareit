@@ -1,18 +1,21 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.itemRequest;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemRequestMapperTest {
     @Test
     public void testToRequest() {
-        // Prepare test data
         Long requestId = 1L;
         String description = "Request Description";
         LocalDateTime created = LocalDateTime.now();
@@ -48,5 +51,28 @@ public class ItemRequestMapperTest {
         Assertions.assertThat(description).isEqualTo(dto.getDescription());
         Assertions.assertThat(created).isEqualTo(dto.getCreated());
 
+    }
+
+    @Test
+    public void testToItemRequestResponseDto() {
+        ItemRequest itemRequest = new ItemRequest();
+        User user = new User(3L, "Name", "email@example.com");
+        List<Item> items = new ArrayList<>();
+        Item itemOne = new Item(1L, "Item One", "Item One", user, itemRequest, true);
+        Item itemTwo = new Item(2L, "Item Two", "Item Two", user, itemRequest, true);
+        items.add(itemOne);
+        items.add(itemTwo);
+        itemRequest.setId(1L);
+        itemRequest.setDescription("description");
+        itemRequest.setRequestor(user);
+        itemRequest.setCreated(LocalDateTime.now());
+
+        ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
+
+        Assertions.assertThat(itemRequest.getId()).isEqualTo(itemRequestResponseDto.getId());
+        Assertions.assertThat(itemRequest.getDescription()).isEqualTo(itemRequestResponseDto.getDescription());
+        Assertions.assertThat(itemRequest.getRequestor().getId()).isEqualTo(itemRequestResponseDto.getRequestorId());
+        Assertions.assertThat(itemRequest.getCreated()).isEqualTo(itemRequestResponseDto.getCreated());
+        Assertions.assertThat(items.size()).isEqualTo(2);
     }
 }
