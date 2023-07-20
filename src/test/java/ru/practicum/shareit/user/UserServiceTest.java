@@ -1,11 +1,15 @@
 package ru.practicum.shareit.user;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import ru.practicum.shareit.exception.DuplicateEmailException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.testData.UserTestData;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -37,6 +41,33 @@ public class UserServiceTest {
         Assertions.assertThat(user).isNotNull();
 
         verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateUserDuplicateEmail() {
+        User oldUser = UserTestData.getUserOne();
+        String email = "dodo@example.com";
+        oldUser.setEmail(email);
+        when(userRepository.getUserByEmail(email)).thenReturn(oldUser);
+        User user = UserTestData.getUserTwo();
+        user.setEmail("dodo@example.com");
+
+        RuntimeException throwable = (RuntimeException )  Assertions.catchThrowable(() -> userService.update(user.getId(), user));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Пользователь с таким email уже зарегистрирован")
+                .asInstanceOf(InstanceOfAssertFactories.type(DuplicateEmailException.class));
+    }
+
+    @Test
+    void updateUser() {
+        User user = UserTestData.getUserOne();
+        RuntimeException throwable = (RuntimeException )  Assertions.catchThrowable(() -> userService.update(user.getId(), user));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Не найден пользователь")
+                .asInstanceOf(InstanceOfAssertFactories.type(NotFoundException.class));
+
     }
 
 

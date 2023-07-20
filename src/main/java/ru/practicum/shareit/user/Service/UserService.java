@@ -25,7 +25,7 @@ public class UserService {
 
         validateThatEmailIsFree(userId, user);
 
-        User oldUser = userRepository.findById(userId);
+        User oldUser = findById(userId);
 
         if (userId == null) {
             return user;
