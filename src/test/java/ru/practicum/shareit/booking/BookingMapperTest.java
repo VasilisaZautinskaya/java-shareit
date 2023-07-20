@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-public class DtoMapperTest {
+public class BookingMapperTest {
     @Test
     public void testToBooking() {
 

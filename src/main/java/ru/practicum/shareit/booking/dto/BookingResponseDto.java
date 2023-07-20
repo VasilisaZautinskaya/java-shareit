@@ -18,18 +18,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookingResponseDto {
-    protected Long id;
+    private Long id;
 
     @FutureOrPresent
     @NotNull
-    protected LocalDateTime start;
+    private LocalDateTime start;
 
     @NotNull
     @Future
-    protected LocalDateTime end;
-    protected BookingStatus status;
-    protected UserDto booker;
-    protected ItemDto item;
+    private LocalDateTime end;
+    private BookingStatus status;
+    private UserDto booker;
+    private ItemDto item;
 
 
 }

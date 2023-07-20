@@ -16,21 +16,21 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 public class BookingRequestDto implements Comparable<BookingRequestDto> {
-    protected Long id;
+    private Long id;
 
     @NotNull
     @FutureOrPresent
-    protected LocalDateTime start;
+    private LocalDateTime start;
 
     @NotNull
     @Future
-    protected LocalDateTime end;
+    private LocalDateTime end;
     @NotNull
-    protected Long itemId;
+    private Long itemId;
 
-    protected Long bookerId;
+    private Long bookerId;
 
-    protected BookingStatus status;
+    private BookingStatus status;
 
     @Override
     public int compareTo(BookingRequestDto o) {
