@@ -6,6 +6,9 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserMapperTest {
 
     @Test
@@ -36,5 +39,18 @@ public class UserMapperTest {
         Assertions.assertThat(id).isEqualTo(userDto.getId());
         Assertions.assertThat(name).isEqualTo(userDto.getName());
         Assertions.assertThat(email).isEqualTo(userDto.getEmail());
+    }
+
+    @Test
+    public void testToUserDtoList() {
+        List<User> userList = new ArrayList<>();
+        User userOne = new User(3L, "Name", "email@example.com");
+        User userTwo = new User(3L, "User", "email12@example.com");
+        userList.add(userOne);
+        userList.add(userTwo);
+
+        List<UserDto> userDtos = UserMapper.toUserDtoList(userList);
+
+        Assertions.assertThat(userDtos.size()).isEqualTo(2);
     }
 }
