@@ -12,4 +12,9 @@ public class UserTestData {
         User userComment = new User(3L, "User", "email12@example.com");
         return userComment;
     }
+
+    public static User getUser() {
+        User newOwner = new User(2L, "UserName", "usernamee,ail@example.com");
+        return newOwner;
+    }
 }

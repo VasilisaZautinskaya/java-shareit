@@ -80,10 +80,13 @@ public class UserServiceTest {
         String email = "dodo@example.com";
         user.setName(name);
         user.setEmail(email);
+        when(userRepository.findById(user.getId())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
+        User updated = userService.update(user.getId(), user);
 
-        Assertions.assertThat(user.getName()).isEqualTo(name);
-        Assertions.assertThat(user.getEmail()).isEqualTo(email);
+        Assertions.assertThat(updated).isNotNull();
+        Assertions.assertThat(updated.getName()).isEqualTo(name);
+        Assertions.assertThat(updated.getEmail()).isEqualTo(email);
     }
 
     @Test
@@ -101,6 +104,7 @@ public class UserServiceTest {
         userList.add(userOne);
         userList.add(userTwo);
         when(userRepository.findAll()).thenReturn(userList);
+        userList = userService.getAllUsers();
 
         Assertions.assertThat(userList.size()).isEqualTo(2);
     }
@@ -110,9 +114,11 @@ public class UserServiceTest {
         User user = UserTestData.getUserOne();
         String name = "UserNameOne";
         user.setName(name);
+        when(userRepository.findById(user.getId())).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
+        User updated = userService.update(user.getId(), user);
 
-        Assertions.assertThat(user.getName()).isEqualTo(name);
+        Assertions.assertThat(updated.getName()).isEqualTo(name);
     }
 
 
