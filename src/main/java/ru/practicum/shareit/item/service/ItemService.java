@@ -33,8 +33,8 @@ public class ItemService {
     private final ItemRequestService itemRequestService;
 
 
-    public Item createItem(Item item, Long userId, Long requestId) {
-        item.setOwner(userService.findById(userId));
+    public Item createItem(Item item, Long ownerId, Long requestId) {
+        item.setOwner(userService.findById(ownerId));
         if (requestId != null) {
             item.setRequest(itemRequestService.findByIdSilent(requestId));
         }
@@ -75,7 +75,7 @@ public class ItemService {
     }
 
 
-    public Item getById(Long itemId) {
+    public Item findById(Long itemId) {
 
         Item item = itemRepository.findById(itemId);
         if (item == null) {
@@ -96,15 +96,15 @@ public class ItemService {
         return itemRepository.getSearch(text);
     }
 
-    public Comment postComment(Long itemId, Long userId, Comment comment) {
+    public Comment postComment(Long itemId, Long authorId, Comment comment) {
 
-        User user = userService.findById(userId);
-        Item item = getById(itemId);
+        User author = userService.findById(authorId);
+        Item item = findById(itemId);
 
-        validateThatUserHadBookedItem(user, item);
+        validateThatUserHadBookedItem(author, item);
 
         comment.setItem(item);
-        comment.setAuthor(user);
+        comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
         return commentRepository.save(comment);
     }

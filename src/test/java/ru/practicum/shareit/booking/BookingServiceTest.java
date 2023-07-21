@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.mapper;
+package ru.practicum.shareit.booking;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

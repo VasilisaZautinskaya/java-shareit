@@ -47,7 +47,7 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable Long itemId
     ) {
-        Item item = itemService.getById(itemId);
+        Item item = itemService.findById(itemId);
         List<Comment> comments = itemService.findAllByItemId(itemId);
         return toItemWithBookingDto(userId, item, comments);
     }
