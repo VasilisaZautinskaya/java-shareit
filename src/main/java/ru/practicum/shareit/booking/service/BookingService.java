@@ -34,12 +34,12 @@ public class BookingService {
         validateThatBookerIsNotOwner(booking.getItem(), booking.getBooker());
         validateThatDateEndIsAfterDateStart(booking);
         validateThatItemIsAvailable(booking);
-        setDefauldStatusIfRequired(booking);
+        setDefaultStatusIfRequired(booking);
 
         return bookingRepository.save(booking);
     }
 
-    private void setDefauldStatusIfRequired(Booking booking) {
+    private void setDefaultStatusIfRequired(Booking booking) {
         if (booking.getStatus() == null) {
             booking.setStatus(BookingStatus.WAITING);
         }
