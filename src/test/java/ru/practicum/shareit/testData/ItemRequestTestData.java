@@ -10,4 +10,9 @@ public class ItemRequestTestData {
          ItemRequest request = new ItemRequest(20L, "New description", user, LocalDateTime.now());
          return request;
      }
+
+    public static ItemRequest getItemRequestTwo(User user) {
+        ItemRequest request = new ItemRequest(10L, "New description Two", user, LocalDateTime.now());
+        return request;
+    }
 }

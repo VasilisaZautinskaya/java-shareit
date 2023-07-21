@@ -41,7 +41,7 @@ public class ItemRequestService {
     public List<ItemRequest> findAllItemRequests(Long userId, int from, int size) {
         if (from < 0 || size < 1) {
             log.info("Неверный номер страницы");
-            throw new ValidateException("");
+            throw new ValidateException("Неверный номер страницы");
         }
         userService.findById(userId);
 
@@ -61,6 +61,7 @@ public class ItemRequestService {
         userService.findById(userId);
         Optional<ItemRequest> itemRequest = itemRequestRepository.findById(requestId);
         if (itemRequest.isEmpty()) {
+            log.info("Такой запрос не найден");
             throw new NotFoundException("Такой запрос не найден");
         }
 
