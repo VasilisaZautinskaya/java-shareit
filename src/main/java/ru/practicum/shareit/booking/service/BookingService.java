@@ -123,8 +123,8 @@ public class BookingService {
             throw new NotFoundException("UserId не может быть null");
         }
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdOrderByStartDesc(
@@ -195,8 +195,8 @@ public class BookingService {
     public List<Booking> findAllCurrentByBooker(Long userId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new IllegalArgumentException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new IllegalArgumentException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
@@ -210,8 +210,8 @@ public class BookingService {
     public List<Booking> findAllPastByBooker(Long userId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new IllegalArgumentException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new IllegalArgumentException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now, PageRequest.of(pageNum, size));
@@ -221,8 +221,8 @@ public class BookingService {
     public List<Booking> findAllFutureByBooker(Long userId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
@@ -234,8 +234,8 @@ public class BookingService {
 
     public List<Booking> findAllWaitingByBooker(Long userId, int from, int size) {
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
@@ -249,8 +249,8 @@ public class BookingService {
 
     public List<Booking> findAllRejectedByBooker(Long userId, int from, int size) {
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
@@ -268,8 +268,8 @@ public class BookingService {
             throw new NotFoundException("UserId не может быть null");
         }
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(
@@ -284,8 +284,8 @@ public class BookingService {
     public List<Booking> findAllCurrentByOwner(Long ownerId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
@@ -301,8 +301,8 @@ public class BookingService {
     public List<Booking> findAllPastByOwner(Long ownerId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now, PageRequest.of(pageNum, size));
@@ -312,8 +312,8 @@ public class BookingService {
     public List<Booking> findAllFutureByOwner(Long ownerId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now, PageRequest.of(pageNum, size));
@@ -323,8 +323,8 @@ public class BookingService {
 
     public List<Booking> findAllWaitingByOwner(Long ownerId, int from, int size) {
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new IllegalArgumentException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new IllegalArgumentException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
@@ -337,8 +337,8 @@ public class BookingService {
 
     public List<Booking> findAllRejectedByOwner(Long ownerId, int from, int size) {
         if (size < 1 || from < 0) {
-            log.info("Неверный номер страни");
-            throw new ValidateException("Wrong page number");
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(ownerId, BookingStatus.REJECTED, PageRequest.of(pageNum, size));

@@ -10,4 +10,5 @@ import static org.mockito.Mockito.mock;
 @AutoConfigureMockMvc
 public class BookingControllerTest {
     private final BookingService bookingService = mock(BookingService.class);
+
 }
