@@ -2,8 +2,6 @@ package ru.practicum.shareit.item.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 

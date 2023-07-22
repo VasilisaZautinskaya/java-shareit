@@ -13,17 +13,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestService;
-import ru.practicum.shareit.testData.CommentTestData;
 import ru.practicum.shareit.testData.ItemRequestTestData;
-import ru.practicum.shareit.testData.ItemTestData;
 import ru.practicum.shareit.testData.UserTestData;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -8,12 +8,10 @@ import java.time.LocalDateTime;
 
 public class CommentTestData {
     public static Comment getCommentTwo(User userComment, Item item) {
-         Comment commentTwo = new Comment(2L, "Благодарю владельца вещи. Всё отлично", item, userComment, LocalDateTime.now());
-         return commentTwo;
+        return new Comment(2L, "Благодарю владельца вещи. Всё отлично", item, userComment, LocalDateTime.now());
      }
 
     public static Comment getCommentOne(User userComment, Item item) {
-         Comment commentOne = new Comment(1L, "Хорошая вещь, спасибо", item, userComment, LocalDateTime.now().minusMinutes(20));
-         return commentOne;
+        return new Comment(1L, "Хорошая вещь, спасибо", item, userComment, LocalDateTime.now().minusMinutes(20));
      }
 }

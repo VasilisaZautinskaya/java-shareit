@@ -20,7 +20,6 @@ public class ItemTestData {
     }
 
     public static Item getItemOne(ItemRequest itemRequest, User owner) {
-        Item itemOne = new Item(1L, "Item One", "Item One", owner, itemRequest, true);
-        return itemOne;
+        return new Item(1L, "Item One", "Item One", owner, itemRequest, true);
     }
 }
