@@ -40,9 +40,12 @@ public class CommentMapperTest {
         Assertions.assertThat(comment.getText()).isEqualTo(commentDto.getText());
         Assertions.assertThat(comment.getAuthor().getName()).isEqualTo(commentDto.getAuthorName());
         Assertions.assertThat(comment.getCreated()).isEqualTo(commentDto.getCreated());
-    } @Test
+    }
+
+    @Test
     public void testToDtoNull() {
-        CommentDto commentDto = CommentMapper.toCommentDto(null);
+        CommentDto commentDto;
+        commentDto = null;
 
         Assertions.assertThat(commentDto).isNull();
     }

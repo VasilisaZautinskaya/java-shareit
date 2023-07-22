@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 import static ru.practicum.shareit.booking.model.BookingStatus.*;
 
 public class BookingServiceTest {
-
     @Mock
     private JpaBookingRepository bookingRepository;
 
@@ -48,7 +47,6 @@ public class BookingServiceTest {
 
     @Mock
     UserService userService;
-
     @InjectMocks
     private BookingService bookingService;
 
@@ -71,7 +69,6 @@ public class BookingServiceTest {
 
         Assertions.assertThat(booking).isEqualTo(createBooking);
         Assertions.assertThat(booking).isNotNull();
-
 
         verify(bookingRepository).save(any(Booking.class));
     }
@@ -123,7 +120,6 @@ public class BookingServiceTest {
         item.setAvailable(false);
         Booking booking = BookingTestData.getBookingOne(user, item);
 
-
         RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.create(booking));
 
         Assertions.assertThat(throwable)
@@ -140,7 +136,6 @@ public class BookingServiceTest {
         Booking booking = BookingTestData.getBookingOne(user, item);
         booking.setStart(LocalDateTime.now());
         booking.setEnd(LocalDateTime.now().minusHours(1));
-
 
         RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.create(booking));
 
@@ -162,8 +157,6 @@ public class BookingServiceTest {
         Assertions.assertThat(throwable)
                 .hasMessageStartingWith("Не найдено бронирование")
                 .asInstanceOf(InstanceOfAssertFactories.type(NotFoundException.class));
-
-
     }
 
     @Test
@@ -268,7 +261,6 @@ public class BookingServiceTest {
         bookings.add(booking);
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(null)).thenReturn(bookings);
 
-
         RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByBooker(null));
 
         Assertions.assertThat(throwable)
@@ -325,13 +317,11 @@ public class BookingServiceTest {
         Pageable pageable = PageRequest.of(from, size);
         Page<Booking> bookingPage = new PageImpl<>(bookings, pageable, 2);
 
-
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(booker.getId(), pageable))
                 .thenReturn(bookingPage.toList());
 
         List<Booking> result = bookingService.findAllByBooker(booker.getId(), from, size);
         Assertions.assertThat(result.size()).isEqualTo(2);
-
     }
 
     @Test
@@ -339,7 +329,6 @@ public class BookingServiceTest {
         int from = 0;
         int size = 10;
         RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByBooker(null, from, size));
-
 
         Assertions.assertThat(throwable)
                 .hasMessageStartingWith("UserId не может быть null")
@@ -361,7 +350,12 @@ public class BookingServiceTest {
         bookings.add(booking2);
         bookings.add(booking);
 
-        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner(booker.getId(), state, from, size));
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner(
+                booker.getId(),
+                state,
+                from,
+                size)
+        );
 
         Assertions.assertThat(throwable)
                 .hasMessageStartingWith("Unknown state: UNKNOWN")
@@ -370,71 +364,71 @@ public class BookingServiceTest {
 
     }
 
-    @Test
-    public void testFindAllByOwnerAll() {
-
-        // mock
-    }
-
-    @Test
-    public void testFindAllByOwnerCurrent() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByOwnerPast() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByOwnerFuture() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByOwnerWaiting() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByOwnerRejected() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByBookerWrongStatus() {
-
-    }
-
-    @Test
-    public void testFindAllByBookerAll() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByBookerCurrent() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByBookerPast() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByBookerFuture() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByBookerWaiting() {
-        // mock
-    }
-
-    @Test
-    public void testFindAllByBookerRejected() {
-        // mock
-    }
+//    @Test
+//    public void testFindAllByOwnerAll() {
+//
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByOwnerCurrent() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByOwnerPast() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByOwnerFuture() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByOwnerWaiting() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByOwnerRejected() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerWrongStatus() {
+//
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerAll() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerCurrent() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerPast() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerFuture() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerWaiting() {
+//        // mock
+//    }
+//
+//    @Test
+//    public void testFindAllByBookerRejected() {
+//        // mock
+//    }
 
     @Test
     public void testFindAllCurrentByBookerWrongPaging() {
@@ -476,8 +470,8 @@ public class BookingServiceTest {
 //        Assertions.assertThat(result.size()).isEqualTo(2);
 //    }
 
-    @Test
-    public void testFindAllPastByBooker() {
-
-    }
+//    @Test
+//    public void testFindAllPastByBooker() {
+//
+//    }
 }
