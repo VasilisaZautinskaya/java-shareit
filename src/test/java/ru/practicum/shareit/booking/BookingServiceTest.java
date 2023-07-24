@@ -355,8 +355,7 @@ public class BookingServiceTest {
         Long ownerId = 1L;
         assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
 
-        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner
-                (ownerId, from, size));
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner(ownerId, from, size));
 
         Assertions.assertThat(throwable)
                 .hasMessageStartingWith("Неверный номер страницы")
