@@ -196,7 +196,7 @@ public class BookingService {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
             log.info("Неверный номер страницы");
-            throw new IllegalArgumentException("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
@@ -211,7 +211,7 @@ public class BookingService {
         LocalDateTime now = LocalDateTime.now();
         if (size < 1 || from < 0) {
             log.info("Неверный номер страницы");
-            throw new IllegalArgumentException("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now, PageRequest.of(pageNum, size));
@@ -324,7 +324,7 @@ public class BookingService {
     public List<Booking> findAllWaitingByOwner(Long ownerId, int from, int size) {
         if (size < 1 || from < 0) {
             log.info("Неверный номер страницы");
-            throw new IllegalArgumentException("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
         }
         int pageNum = from / size;
         return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(

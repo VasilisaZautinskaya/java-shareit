@@ -11,7 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -34,6 +37,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ru.practicum.shareit.booking.model.BookingStatus.*;
@@ -254,10 +258,10 @@ public class BookingServiceTest {
     public void testFindAllByBookerUserIdIsNull() {
         List<Booking> bookings = new ArrayList<>();
         User requester = UserTestData.getUserOne();
-        User owner = UserTestData.getUserTwo();
+        User booker = UserTestData.getUserTwo();
         ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
-        Item item = ItemTestData.getItemOne(itemRequest, owner);
-        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
         bookings.add(booking);
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(null)).thenReturn(bookings);
 
@@ -273,14 +277,14 @@ public class BookingServiceTest {
     public void testFindAllByBooker() {
         List<Booking> bookings = new ArrayList<>();
         User requester = UserTestData.getUserOne();
-        User owner = UserTestData.getUserTwo();
+        User booker = UserTestData.getUserTwo();
         ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
-        Item item = ItemTestData.getItemOne(itemRequest, owner);
-        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
         bookings.add(booking);
-        when(bookingRepository.findAllByBookerIdOrderByStartDesc(owner.getId())).thenReturn(bookings);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(booker.getId())).thenReturn(bookings);
 
-        List<Booking> getBooking = bookingService.findAllByBooker(owner.getId());
+        List<Booking> getBooking = bookingService.findAllByBooker(booker.getId());
 
         Assertions.assertThat(getBooking.size()).isEqualTo(1);
     }
@@ -291,9 +295,70 @@ public class BookingServiceTest {
         int from = -1;
         int size = 0;
         Long userId = 1L;
-        assertThrows(IllegalArgumentException.class, () -> PageRequest.of(from, size));
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
 
         RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByBooker(userId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+
+    }
+
+    @Test
+    public void testFindAllByOwnerIdIsNull() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User requester = UserTestData.getUserOne();
+        User owner = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        bookings.add(booking);
+        when(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(null)).thenReturn(bookings);
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner(null, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("UserId не может быть null")
+                .asInstanceOf(InstanceOfAssertFactories.type(NotFoundException.class));
+
+    }
+
+    @Test
+    public void testFindAllByOwner() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(requester, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        Page<Booking> bookingPage = new PageImpl<>(bookings, pageable, 2);
+
+        when(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(owner.getId(), pageable))
+                .thenReturn(bookingPage.toList());
+
+        List<Booking> result = bookingService.findAllByOwner(owner.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+
+    @Test
+    public void testFindAllByOwnerPagingWrong() {
+        int from = -1;
+        int size = 0;
+        Long ownerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner
+                (ownerId, from, size));
 
         Assertions.assertThat(throwable)
                 .hasMessageStartingWith("Неверный номер страницы")
@@ -341,17 +406,17 @@ public class BookingServiceTest {
         int size = 10;
         String state = "UNKNOWN";
         List<Booking> bookings = new ArrayList<>();
-        User booker = UserTestData.getUserOne();
+        User owner = UserTestData.getUserOne();
         User requester = UserTestData.getUserTwo();
         ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
-        Item item = ItemTestData.getItemOne(itemRequest, booker);
-        Booking booking = BookingTestData.getBookingOne(booker, item);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
         Booking booking2 = BookingTestData.getBookingTwo(requester, item);
         bookings.add(booking2);
         bookings.add(booking);
 
         RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllByOwner(
-                booker.getId(),
+                owner.getId(),
                 state,
                 from,
                 size)
@@ -364,114 +429,787 @@ public class BookingServiceTest {
 
     }
 
-//    @Test
-//    public void testFindAllByOwnerAll() {
-//
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByOwnerCurrent() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByOwnerPast() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByOwnerFuture() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByOwnerWaiting() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByOwnerRejected() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerWrongStatus() {
-//
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerAll() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerCurrent() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerPast() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerFuture() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerWaiting() {
-//        // mock
-//    }
-//
-//    @Test
-//    public void testFindAllByBookerRejected() {
-//        // mock
-//    }
-
     @Test
     public void testFindAllCurrentByBookerWrongPaging() {
         int from = -1;
         int size = 0;
         Long userId = 1L;
-        assertThrows(IllegalArgumentException.class, () -> PageRequest.of(from, size));
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
 
-        IllegalArgumentException throwable = (IllegalArgumentException) Assertions.catchThrowable(() -> bookingService.findAllCurrentByBooker(userId, from, size));
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllCurrentByBooker(userId, from, size));
 
         Assertions.assertThat(throwable)
                 .hasMessageStartingWith("Неверный номер страницы")
-                .asInstanceOf(InstanceOfAssertFactories.type(IllegalArgumentException.class));
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
     }
 
-//    @Test
-//    public void testFindAllCurrentByBookerPaging() {
-//        int from = 0;
-//        int size = 10;
-//        List<Booking> bookings = new ArrayList<>();
-//        User booker = UserTestData.getUserOne();
-//        User requester = UserTestData.getUserTwo();
-//        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
-//        Item item = ItemTestData.getItemOne(itemRequest, booker);
-//        Booking booking = BookingTestData.getBookingOne(booker, item);
-//        Booking booking2 = BookingTestData.getBookingTwo(booker, item);
-//        bookings.add(booking2);
-//        bookings.add(booking);
-//        Pageable pageable = PageRequest.of(from, size);
-//        Page<Booking> bookingPage = new PageImpl<>(bookings, pageable, 2);
-//
-//        when(bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(booker.getId(),
-//                LocalDateTime.now().minusHours(1),
-//                LocalDateTime.now(),
-//                pageable))
-//                .thenReturn(bookingPage.toList());
-//
-//        List<Booking> result = bookingService.findAllCurrentByBooker(booker.getId(), from, size);
-//        Assertions.assertThat(result.size()).isEqualTo(2);
-//    }
+    @Test
+    public void testFindAllCurrentByBookerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
 
-//    @Test
-//    public void testFindAllPastByBooker() {
-//
-//    }
+        List<Booking> result = bookingService.findAllCurrentByOwner(owner.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testFindAllCurrentByOwnerWrongPaging() {
+        int from = -1;
+        int size = 0;
+        Long ownerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllCurrentByOwner(ownerId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFindAllCurrentByOwnerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllCurrentByBooker(owner.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testFindAllPastByBookerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long userId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllPastByBooker(userId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFindAllPastByBookerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User booker = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
+        Booking booking2 = BookingTestData.getBookingTwo(booker, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                eq(booker.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllPastByBooker(booker.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testFindAllPastByOwnerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long ownerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllPastByOwner(ownerId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFindAllPastByOwnerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllPastByOwner(owner.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testFindAllFutureByBookerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long userId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllFutureByBooker(userId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFindAllFutureByBookerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User booker = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
+        Booking booking2 = BookingTestData.getBookingTwo(booker, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                eq(booker.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllFutureByBooker(booker.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testFindAllFutureByOwnerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long ownerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllFutureByOwner(ownerId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFindAllFutureByOwnerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User booker = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
+        Booking booking2 = BookingTestData.getBookingTwo(booker, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(
+                eq(booker.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllFutureByOwner(booker.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testAllWaitingByBookerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long userId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllWaitingByBooker(userId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFindAllWaitingByBookerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User booker = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
+        Booking booking2 = BookingTestData.getBookingTwo(booker, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                eq(booker.getId()),
+                eq(WAITING),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllWaitingByBooker(booker.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testFindAllWaitingByOwnerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
+                eq(owner.getId()),
+                eq(WAITING),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllWaitingByOwner(owner.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testAllWaitingByOwnerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long ownerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllWaitingByOwner(ownerId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testAllRejectedByBookerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long bookerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllRejectedByBooker(bookerId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFinAllRejectedByOwnerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
+                eq(owner.getId()),
+                eq(REJECTED),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllRejectedByOwner(owner.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testAllRejectedByOwnerWrongPage() {
+        int from = -1;
+        int size = 0;
+        Long ownerId = 1L;
+        assertThrows(RuntimeException.class, () -> PageRequest.of(from, size));
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllRejectedByOwner(ownerId, from, size));
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Неверный номер страницы")
+                .asInstanceOf(InstanceOfAssertFactories.type(ValidateException.class));
+    }
+
+    @Test
+    public void testFinAllRejectedByBookerPaging() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User booker = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, booker);
+        Booking booking = BookingTestData.getBookingOne(booker, item);
+        Booking booking2 = BookingTestData.getBookingTwo(booker, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                eq(booker.getId()),
+                eq(REJECTED),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<Booking> result = bookingService.findAllRejectedByBooker(booker.getId(), from, size);
+        Assertions.assertThat(result.size()).isEqualTo(2);
+    }
+
+
+    @Test
+    public void findAllByOwnerALL() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "ALL";
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdOrderByStartDesc(
+                eq(owner.getId()),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+        List<BookingResponseDto> bookingList = bookingService.findAllByOwner(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByOwnerCURRENT() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "CURRENT";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllByOwner(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByOwnerPAST() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "PAST";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllByOwner(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByOwnerFUTURE() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "FUTURE";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllByOwner(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByOwnerWAITING() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "WAITING";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
+                eq(owner.getId()),
+                eq(WAITING),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllByOwner(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByOwnerREJECTED() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "REJECTED";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
+                eq(owner.getId()),
+                eq(REJECTED),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllByOwner(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByBookingALL() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "ALL";
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(
+                eq(owner.getId()),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+        List<BookingResponseDto> bookingList = bookingService.findAllBookings(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByBookingCURRENT() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "CURRENT";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllBookings(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByBookingPAST() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "PAST";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllBookings(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByBookingFUTURE() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "FUTURE";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                eq(owner.getId()),
+                any(LocalDateTime.class),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllBookings(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByBookingWAITING() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "WAITING";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                eq(owner.getId()),
+                eq(WAITING),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllBookings(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void findAllByBookingREJECTED() {
+        int from = 0;
+        int size = 10;
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(owner, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+        String state = "REJECTED";
+
+        Pageable pageable = PageRequest.of(from, size);
+        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                eq(owner.getId()),
+                eq(REJECTED),
+                eq(pageable))
+        )
+                .thenReturn(bookings);
+
+        List<BookingResponseDto> bookingList = bookingService.findAllBookings(owner.getId(), state, from, size);
+
+        Assertions.assertThat(bookingList.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    public void testFindAllBookingsWrongStatus() {
+        int from = 0;
+        int size = 10;
+        String state = "UNKNOWN";
+        List<Booking> bookings = new ArrayList<>();
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        Booking booking2 = BookingTestData.getBookingTwo(requester, item);
+        bookings.add(booking2);
+        bookings.add(booking);
+
+        RuntimeException throwable = (RuntimeException) Assertions.catchThrowable(() -> bookingService.findAllBookings(
+                owner.getId(),
+                state,
+                from,
+                size)
+        );
+
+        Assertions.assertThat(throwable)
+                .hasMessageStartingWith("Unknown state: UNKNOWN")
+                .asInstanceOf(InstanceOfAssertFactories.type(WrongBookingStatus.class));
+
+    }
+
+    @Test
+    public void testHGetNextBookingForItem() {
+
+    }
+
+
 }
