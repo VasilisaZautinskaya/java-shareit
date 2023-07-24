@@ -1206,7 +1206,36 @@ public class BookingServiceTest {
 
     @Test
     public void testHGetNextBookingForItem() {
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        List<Booking> bookings = BookingTestData.createBookingList(owner, item);
 
+        when(bookingRepository.findAllByItemId(
+                item.getId())
+        ).thenReturn(bookings);
+
+        Booking booking = bookingService.getNextBookingForItem(item.getId());
+
+        Assertions.assertThat(booking).isEqualTo(bookings.get(3));
+    }
+
+    @Test
+    public void testGetLastBookingForItem() {
+        User owner = UserTestData.getUserOne();
+        User requester = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        List<Booking> bookings = BookingTestData.createBookingList(owner, item);
+
+        when(bookingRepository.findAllByItemId(
+                item.getId())
+        ).thenReturn(bookings);
+
+        Booking booking = bookingService.getLastBookingForItem(item.getId());
+
+        Assertions.assertThat(booking).isEqualTo(bookings.get(1));
     }
 
 
