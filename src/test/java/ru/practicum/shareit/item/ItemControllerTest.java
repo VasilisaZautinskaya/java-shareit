@@ -27,8 +27,6 @@ import ru.practicum.shareit.testData.BookingTestData;
 import ru.practicum.shareit.testData.ItemRequestTestData;
 import ru.practicum.shareit.testData.ItemTestData;
 import ru.practicum.shareit.testData.UserTestData;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import static org.mockito.ArgumentMatchers.any;
