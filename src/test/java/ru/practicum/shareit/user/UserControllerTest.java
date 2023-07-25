@@ -78,7 +78,7 @@ public class UserControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         User user = UserTestData.getUserOne();
         UserDto userDto = UserMapper.toUserDto(user);
-        Long userId = 1l;
+        Long userId = 1L;
 
         when(userService.findById(userId)).thenReturn(user);
 
@@ -134,7 +134,7 @@ public class UserControllerTest {
     @Test
     @SneakyThrows
     public void testDeleteUserById() {
-        Long userId = 1l;
+        Long userId = 1L;
 
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.delete("/users/{userId}", userId)

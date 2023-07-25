@@ -160,5 +160,15 @@ public class ItemControllerTest {
         Assertions.assertThat(resultItemDto.getRequestId()).isEqualTo(item.getRequest().getId());
         Assertions.assertThat(resultItemDto).isNotNull();
     }
-
+    @Test
+    @SneakyThrows
+    public void testDeleteItem(){
+        Long itemId = 1L;
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/items/{itemId}", itemId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andReturn();
+    }
 }
