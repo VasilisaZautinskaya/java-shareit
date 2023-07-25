@@ -11,4 +11,6 @@ import static org.mockito.Mockito.mock;
 public class BookingControllerTest {
     private final BookingService bookingService = mock(BookingService.class);
 
+
+
 }
