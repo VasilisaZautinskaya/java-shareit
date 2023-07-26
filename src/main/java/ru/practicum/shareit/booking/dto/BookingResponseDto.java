@@ -27,6 +27,7 @@ public class BookingResponseDto {
     @NotNull
     @Future
     private LocalDateTime end;
+
     private BookingStatus status;
     private UserDto booker;
     private ItemDto item;

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
@@ -17,17 +18,20 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.controller.ItemController;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.testData.BookingTestData;
-import ru.practicum.shareit.testData.ItemRequestTestData;
-import ru.practicum.shareit.testData.ItemTestData;
-import ru.practicum.shareit.testData.UserTestData;
+import ru.practicum.shareit.testData.*;
 import ru.practicum.shareit.user.model.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,6 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 public class ItemControllerTest {
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
     @MockBean
     ItemService itemService;
     @MockBean
@@ -51,14 +57,13 @@ public class ItemControllerTest {
     @Test
     @SneakyThrows
     public void testCreateItem() {
-        ObjectMapper objectMapper = new ObjectMapper();
         User user = UserTestData.getUserTwo();
         User owner = UserTestData.getUserOne();
         ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
         Item item = ItemTestData.getItemOne(itemRequest, owner);
         ItemDto itemDto = ItemMapper.toItemDto(item);
-
         when(itemService.createItem(any(Item.class), eq(owner.getId()), eq(itemRequest.getId()))).thenReturn(item);
+
 
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.post("/items")
@@ -86,7 +91,6 @@ public class ItemControllerTest {
     @Test
     @SneakyThrows
     public void testItemWithBookingDto() {
-        ObjectMapper objectMapper = new ObjectMapper();
         User user = UserTestData.getUserTwo();
         User owner = UserTestData.getUserOne();
         ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
@@ -124,7 +128,6 @@ public class ItemControllerTest {
     @Test
     @SneakyThrows
     public void testUpdateItem() {
-        ObjectMapper objectMapper = new ObjectMapper();
         User user = UserTestData.getUserTwo();
         User owner = UserTestData.getUserOne();
         ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
@@ -172,4 +175,102 @@ public class ItemControllerTest {
                 .andDo(print())
                 .andReturn();
     }
+
+    @Test
+    @SneakyThrows
+    public void testFindAllItem() {
+        List<Item> items = new ArrayList<>();
+
+        User user = UserTestData.getUserOne();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
+
+        Item item = ItemTestData.getItemOne(itemRequest, user);
+        Item itemTwo = ItemTestData.getItemTwo(itemRequest, user);
+
+        items.add(item);
+        items.add(itemTwo);
+
+
+        when(itemService.findAll(user.getId())).thenReturn(items);
+
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.get("/items")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-Sharer-User-Id", user.getId())
+                )
+                .andDo(print())
+                .andReturn();
+
+        String resultUserStr = result.getResponse().getContentAsString();
+        List<ItemWithBookingDto> itemWithBookingDtos = objectMapper.readValue(resultUserStr, new TypeReference<List<ItemWithBookingDto>>() {
+        });
+
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        Assertions.assertThat(itemWithBookingDtos.size()).isEqualTo(2);
+
+
+    }
+
+    @Test
+    @SneakyThrows
+    public void testSearch() {
+        List<Item> items = new ArrayList<>();
+        List<ItemDto> itemDtos = ItemMapper.toItemDtoList(items);
+
+        User user = UserTestData.getUserOne();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
+
+        Item item = ItemTestData.getItemOne(itemRequest, user);
+        Item itemTwo = ItemTestData.getItemTwo(itemRequest, user);
+
+        items.add(item);
+        items.add(itemTwo);
+        String searchText = "item";
+        when(itemService.findItemsByText(searchText)).thenReturn(items);
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.get("/items/search")
+                                .param("text", searchText)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(itemDtos))
+                )
+                .andDo(print())
+                .andReturn();
+
+        String resultUserStr = result.getResponse().getContentAsString();
+        List<ItemDto> itemDtoList = objectMapper.readValue(resultUserStr, new TypeReference<List<ItemDto>>() {
+        });
+
+        Assertions.assertThat(itemDtoList.size()).isEqualTo(2);
+    }
+
+    @Test
+    @SneakyThrows
+    public void testPostComment() {
+
+        User owner = UserTestData.getUserOne();
+        User author = UserTestData.getUserTwo();
+        Item item = ItemTestData.getItemOne(null, owner);
+        Comment commentOne = CommentTestData.getCommentOne(owner, item);
+
+        CommentDto commentDto = CommentMapper.toCommentDto(commentOne);
+
+        when(itemService.postComment(eq(item.getId()), eq(author.getId()), any(Comment.class))).thenReturn(commentOne);
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/items/{itemId}/comment", item.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-Sharer-User-Id", author.getId())
+                                .content(objectMapper.writeValueAsString(commentDto))
+                )
+                .andDo(print())
+                .andReturn();
+
+        String resultItemStr = result.getResponse().getContentAsString();
+        CommentDto commentDto2 = objectMapper.readValue(resultItemStr, CommentDto.class);
+
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        Assertions.assertThat(commentDto2.getId()).isEqualTo(commentOne.getId());
+        Assertions.assertThat(commentDto2.getCreated()).isEqualTo(commentOne.getCreated());
+        Assertions.assertThat(commentDto2.getAuthorName()).isEqualTo(commentOne.getAuthor().getName());
+    }
+
 }
