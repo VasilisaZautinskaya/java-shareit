@@ -10,8 +10,6 @@ import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.Service.UserService;
 
-import static org.mockito.Mockito.when;
-
 @WebMvcTest(ItemRequestController.class)
 public class ItemRequestControllerTest {
     @Autowired
