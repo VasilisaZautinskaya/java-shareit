@@ -13,7 +13,6 @@ public class DbUserRepository implements UserRepository {
     @Autowired
     JpaUserRepository jpaUserRepository;
 
-
     @Override
     public User findById(Long userId) {
         return jpaUserRepository.findById(userId).orElse(null);

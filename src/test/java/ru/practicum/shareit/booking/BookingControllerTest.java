@@ -54,47 +54,6 @@ public class BookingControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-//    @Test
-//    @SneakyThrows
-//    public void testCreateBooking() {
-//        User user = UserTestData.getUserTwo();
-//        User owner = UserTestData.getUserOne();
-//        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(user);
-//        Item item = ItemTestData.getItemOne(itemRequest, owner);
-//        BookingRequestDto bookingRequestDto = new BookingRequestDto(1L,
-//                LocalDateTime.now().minusHours(6),
-//                LocalDateTime.now().minusHours(2),
-//                item.getId(),
-//                user.getId(),
-//                BookingStatus.APPROVED);
-//        Booking booking = BookingMapper.toBooking(bookingRequestDto, item, user);
-//
-//
-//        when(itemService.findById(booking.getItem().getId())).thenReturn(item);
-//        when(userService.findById(booking.getBooker().getId())).thenReturn(user);
-//        when(bookingService.create(any(Booking.class))).thenReturn(booking);
-//
-//        MvcResult result = mockMvc.perform(
-//                        MockMvcRequestBuilders.post("/bookings")
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .header("X-Sharer-User-Id", user.getId())
-//                                .content(objectMapper.writeValueAsString(bookingRequestDto))
-//                )
-//                .andDo(print())
-//                .andReturn();
-//
-//        String resultBookingStr = result.getResponse().getContentAsString();
-//        BookingResponseDto resultBookingDto = objectMapper.readValue(resultBookingStr, BookingResponseDto.class);
-//
-//        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-//
-//        Assertions.assertThat(resultBookingDto.getId()).isEqualTo(booking.getId());
-//        Assertions.assertThat(resultBookingDto.getEnd()).isEqualTo(booking.getEnd());
-//        Assertions.assertThat(resultBookingDto.getStart()).isEqualTo(booking.getStart());
-//        Assertions.assertThat(resultBookingDto.getStatus()).isEqualTo(booking.getStatus());
-//        Assertions.assertThat(resultBookingDto).isNotNull();
-//    }
-
     @Test
     @SneakyThrows
     public void testUpdateBooking() {
