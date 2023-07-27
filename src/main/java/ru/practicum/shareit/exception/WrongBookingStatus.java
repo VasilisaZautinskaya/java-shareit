@@ -10,6 +10,6 @@ public class WrongBookingStatus extends ShareItApplicationException {
 
     @Override
     public HttpStatus getStatus() {
-        return null;
+        return HttpStatus.BAD_REQUEST;
     }
 }
