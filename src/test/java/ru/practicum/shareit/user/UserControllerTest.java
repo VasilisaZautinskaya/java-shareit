@@ -15,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.handler.GlobalExceptionHandler;
 import ru.practicum.shareit.testData.UserTestData;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.controller.UserController;
@@ -99,6 +101,34 @@ public class UserControllerTest {
         Assertions.assertThat(resultUserDto.getEmail()).isEqualTo(user.getEmail());
         Assertions.assertThat(resultUserDto.getName()).isEqualTo(user.getName());
         Assertions.assertThat(resultUserDto).isNotNull();
+    }
+
+    @Test
+    @SneakyThrows
+    public void testGetUserByIdWithError() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        User user = UserTestData.getUserOne();
+        UserDto userDto = UserMapper.toUserDto(user);
+        Long userId = 1L;
+
+        String errorMessage = "errorMessage";
+        when(userService.findById(userId)).thenThrow(new NotFoundException(errorMessage));
+
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{userId}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userDto))
+                )
+                .andDo(print())
+                .andReturn();
+
+        String resultUserStr = result.getResponse().getContentAsString();
+        GlobalExceptionHandler.ErrorResponse errorResponse = objectMapper.readValue(resultUserStr, GlobalExceptionHandler.ErrorResponse.class);
+
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+
+        Assertions.assertThat(errorResponse).isNotNull();
+        Assertions.assertThat(errorResponse.getError()).isEqualTo(errorMessage);
     }
 
     @Test
