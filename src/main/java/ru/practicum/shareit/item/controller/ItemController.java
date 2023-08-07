@@ -27,13 +27,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemController {
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
     private final BookingService bookingService;
 
     @PostMapping
     public @ResponseBody ItemDto createItem(
             @Valid @RequestBody ItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
 
         Item item = ItemMapper.toItem(itemDto);
@@ -44,7 +45,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public @ResponseBody ItemWithBookingDto getItemById(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @PathVariable Long itemId
     ) {
         Item item = itemService.findById(itemId);
@@ -56,7 +57,7 @@ public class ItemController {
     public @ResponseBody ItemDto update(
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
         Item item = ItemMapper.toItem(itemDto);
         Item updatedItem = itemService.update(itemId, item, userId);
@@ -70,7 +71,7 @@ public class ItemController {
 
     @GetMapping
     public @ResponseBody List<ItemWithBookingDto> getAllItems(
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
         List<ItemWithBookingDto> allItemDto = itemService.findAll(userId).stream()
                 .map(item -> toItemWithBookingDto(userId, item, Collections.emptyList()))
@@ -98,7 +99,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentDto postComment(
             @PathVariable Long itemId,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @Valid @RequestBody CommentDto commentDto
     ) {
         Comment comment = CommentMapper.toComment(commentDto);

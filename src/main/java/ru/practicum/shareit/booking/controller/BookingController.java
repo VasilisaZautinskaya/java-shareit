@@ -21,6 +21,7 @@ import java.util.List;
 @Slf4j
 public class BookingController {
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
     private final UserService userService;
     private final ItemService itemService;
@@ -44,7 +45,7 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public BookingResponseDto approve(
             @PathVariable Long bookingId,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @RequestParam boolean approved
     ) {
 
@@ -55,7 +56,7 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public BookingResponseDto getById(
             @PathVariable Long bookingId,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
         Booking booking = bookingService.getById(bookingId, userId);
         return BookingMapper.toBookingResponseDto(booking);
@@ -63,20 +64,20 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getAllBookings(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0", required = false) int from,
-            @RequestParam(defaultValue = "10", required = false) int size
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
         return bookingService.findAllBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getAllByOwner(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @RequestParam(required = false, defaultValue = "ALL") String state,
-            @RequestParam(defaultValue = "0", required = false) int from,
-            @RequestParam(defaultValue = "10", required = false) int size
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
         return bookingService.findAllByOwner(userId, state, from, size);
     }

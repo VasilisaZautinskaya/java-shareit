@@ -22,6 +22,7 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 public class ItemRequestController {
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final ItemRequestService itemRequestService;
     private final UserService userService;
 
@@ -31,7 +32,7 @@ public class ItemRequestController {
     @PostMapping
     public @ResponseBody ItemRequestResponseDto create(
             @Valid @RequestBody ItemRequestDto itemRequestDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(
                 itemRequestDto,
@@ -44,7 +45,7 @@ public class ItemRequestController {
 
     @GetMapping
     public @ResponseBody List<ItemRequestResponseDto> getById(
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequest(userId);
         List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
@@ -60,9 +61,9 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public @ResponseBody List<ItemRequestResponseDto> getAllItemRequests(@RequestHeader(value = "X-Sharer-User-Id", required = true) Long userId,
-                                                                         @RequestParam(defaultValue = "0", required = false) int from,
-                                                                         @RequestParam(defaultValue = "10", required = false) int size) {
+    public @ResponseBody List<ItemRequestResponseDto> getAllItemRequests(@RequestHeader(value = X_SHARER_USER_ID) Long userId,
+                                                                         @RequestParam(defaultValue = "0") int from,
+                                                                         @RequestParam(defaultValue = "10") int size) {
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequests(userId, from, size);
         List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequests
@@ -77,7 +78,7 @@ public class ItemRequestController {
 
 
     @GetMapping("/{requestId}")
-    public @ResponseBody ItemRequestResponseDto findById(@PathVariable Long requestId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public @ResponseBody ItemRequestResponseDto findById(@PathVariable Long requestId, @RequestHeader(X_SHARER_USER_ID) Long userId) {
         ItemRequest itemRequest = itemRequestService.findById(requestId, userId);
         List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
         return ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
