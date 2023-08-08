@@ -29,7 +29,7 @@ public class BookingController {
     @PostMapping
     public BookingResponseDto create(
             @Valid @RequestBody BookingRequestDto bookingRequestDto,
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId
+            @RequestHeader(value = X_SHARER_USER_ID) Long userId
     ) {
 
         Booking booking = BookingMapper.toBooking(

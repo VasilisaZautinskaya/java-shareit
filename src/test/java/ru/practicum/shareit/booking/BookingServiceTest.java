@@ -48,7 +48,7 @@ public class BookingServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    UserService userService;
+    private UserService userService;
     @InjectMocks
     private BookingService bookingService;
 

@@ -40,14 +40,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @WebMvcTest(ItemController.class)
 public class ItemControllerTest {
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +69,7 @@ public class ItemControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.post("/items")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", owner.getId())
+                                .header(X_SHARER_USER_ID, owner.getId())
                                 .content(objectMapper.writeValueAsString(itemDto))
                 )
                 .andDo(print())
@@ -104,7 +105,7 @@ public class ItemControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/items/{itemId}", item.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", owner.getId())
+                                .header(X_SHARER_USER_ID, owner.getId())
                 )
                 .andDo(print())
                 .andReturn();
@@ -143,7 +144,7 @@ public class ItemControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.patch("/items/{itemId}", item.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", owner.getId())
+                                .header(X_SHARER_USER_ID, owner.getId())
                                 .content(objectMapper.writeValueAsString(itemDto))
                 )
                 .andDo(print())
@@ -196,7 +197,7 @@ public class ItemControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/items")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", user.getId())
+                                .header(X_SHARER_USER_ID, user.getId())
                 )
                 .andDo(print())
                 .andReturn();
@@ -258,7 +259,7 @@ public class ItemControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.post("/items/{itemId}/comment", item.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", author.getId())
+                                .header(X_SHARER_USER_ID, author.getId())
                                 .content(objectMapper.writeValueAsString(commentDto))
                 )
                 .andDo(print())

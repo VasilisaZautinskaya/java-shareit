@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.DbItemRepository;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
@@ -20,13 +21,14 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 
+@DataJpaTest
 public class ItemRepositoryTest {
 
     @Mock
-    JpaItemRepository jpaItemRepository;
+    private JpaItemRepository jpaItemRepository;
 
     @InjectMocks
-    DbItemRepository dbItemRepository;
+    private DbItemRepository dbItemRepository;
 
     @BeforeEach
     void setUp() {

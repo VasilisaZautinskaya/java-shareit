@@ -43,11 +43,11 @@ public class BookingControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
     @MockBean
-    UserService userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {

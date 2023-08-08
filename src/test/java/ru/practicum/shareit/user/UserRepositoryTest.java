@@ -20,10 +20,10 @@ import static org.mockito.Mockito.when;
 public class UserRepositoryTest {
 
     @Mock
-    JpaUserRepository jpaUserRepository;
+    private JpaUserRepository jpaUserRepository;
 
     @InjectMocks
-    DbUserRepository dbUserRepository;
+    private DbUserRepository dbUserRepository;
 
     @BeforeEach
     void setUp() {

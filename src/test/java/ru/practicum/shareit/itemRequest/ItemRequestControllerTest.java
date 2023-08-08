@@ -36,17 +36,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(ItemRequestController.class)
-public class    ItemRequestControllerTest {
+public class ItemRequestControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
     @MockBean
-    UserService userService;
+    private UserService userService;
     @MockBean
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @BeforeEach
     void setUp() {
