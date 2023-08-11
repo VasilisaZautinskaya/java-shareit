@@ -15,8 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.controller.ItemRequestController;
@@ -40,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @WebMvcTest(ItemRequestController.class)
 public class ItemRequestControllerTest {
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -71,7 +68,7 @@ public class ItemRequestControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.post("/requests")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header(X_SHARER_USER_ID, user.getId())
+                                .header("X-Sharer-User-Id", user.getId())
                                 .content(objectMapper.writeValueAsString(itemRequestDto))
                 )
                 .andDo(print())
@@ -100,7 +97,7 @@ public class ItemRequestControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/requests/{requestId}", itemRequest.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header(X_SHARER_USER_ID, user.getId())
+                                .header("X-Sharer-User-Id", user.getId())
                                 .content(objectMapper.writeValueAsString(itemRequestResponseDto))
                 )
                 .andDo(print())
@@ -136,7 +133,7 @@ public class ItemRequestControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/requests/all")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header(X_SHARER_USER_ID, user.getId())
+                                .header("X-Sharer-User-Id", user.getId())
                                 .param("from", String.valueOf(from))
                                 .param("size", String.valueOf(size))
                                 .content(objectMapper.writeValueAsString(itemRequestResponseDtoList))
@@ -172,7 +169,7 @@ public class ItemRequestControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/requests")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header(X_SHARER_USER_ID, user.getId())
+                                .header("X-Sharer-User-Id", user.getId())
                                 .content(objectMapper.writeValueAsString(itemRequestResponseDto))
                 )
                 .andDo(print())
