@@ -38,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @WebMvcTest(BookingController.class)
 public class BookingControllerTest {
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -72,7 +73,7 @@ public class BookingControllerTest {
                         MockMvcRequestBuilders.patch("/bookings/{bookingId}", booking.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param("approved", String.valueOf(approved))
-                                .header("X-Sharer-User-Id", owner.getId())
+                                .header(X_SHARER_USER_ID, owner.getId())
                                 .content(objectMapper.writeValueAsString(booking))
                 )
                 .andDo(print())
@@ -100,7 +101,7 @@ public class BookingControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/bookings/{bookingId}", booking.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", owner.getId())
+                                .header(X_SHARER_USER_ID, owner.getId())
                                 .content(objectMapper.writeValueAsString(booking))
                 )
                 .andDo(print())
@@ -131,7 +132,7 @@ public class BookingControllerTest {
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get("/bookings")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .header("X-Sharer-User-Id", owner.getId())
+                                .header(X_SHARER_USER_ID, owner.getId())
                                 .param("state", state)
                                 .param("from", String.valueOf(from))
                                 .param("size", String.valueOf(size))
@@ -139,6 +140,7 @@ public class BookingControllerTest {
                 )
                 .andDo(print())
                 .andReturn();
+
         String resultBookingStr = result.getResponse().getContentAsString();
         List<BookingResponseDto> bookingResponseDtos = objectMapper.readValue(resultBookingStr, new TypeReference<List<BookingResponseDto>>() {
         });
