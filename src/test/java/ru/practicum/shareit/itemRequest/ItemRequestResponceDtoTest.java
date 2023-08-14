@@ -5,36 +5,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-
 @JsonTest
-public class ItemRequestDtoTest {
+public class ItemRequestResponceDtoTest {
     @Autowired
-    JacksonTester<ItemRequestDto> json;
+    JacksonTester<ItemRequestResponseDto> json;
 
     @Test
-    void testItemRequestDto() throws Exception {
+    void testItemRequestResponceDto() throws Exception {
         LocalDateTime localDateTime = LocalDateTime.parse("2023-08-04T13:26:59");
 
-        ItemRequestDto itemRequestDto = new ItemRequestDto(
-                1L,
+        ItemRequestResponseDto itemRequestResponseDto = new ItemRequestResponseDto(1L,
                 "Нужен стол с одной ножкой",
                 1L,
-                localDateTime
-        );
+                new ArrayList<>(),
+                localDateTime);
 
-        JsonContent<ItemRequestDto> result = json.write(itemRequestDto);
+        JsonContent<ItemRequestResponseDto> result = json.write(itemRequestResponseDto);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathNumberValue("$.requestorId").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Нужен стол с одной ножкой");
         assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo("2023-08-04T13:26:59");
+        assertThat(result).extractingJsonPathArrayValue("$.items").hasSize(0);
     }
-
-
 }

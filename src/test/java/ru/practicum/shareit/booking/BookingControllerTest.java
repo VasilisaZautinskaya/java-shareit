@@ -80,6 +80,7 @@ public class BookingControllerTest {
         String resultBookingRequest = result.getResponse().getContentAsString();
         BookingResponseDto bookingResponseDto = objectMapper.readValue(resultBookingRequest, BookingResponseDto.class);
 
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         Assertions.assertThat(bookingResponseDto.getId()).isEqualTo(booking.getId());
 
 
@@ -108,6 +109,7 @@ public class BookingControllerTest {
         String resultBookingRequest = result.getResponse().getContentAsString();
         BookingResponseDto bookingResponseDto = objectMapper.readValue(resultBookingRequest, BookingResponseDto.class);
 
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         Assertions.assertThat(bookingResponseDto.getId()).isEqualTo(booking.getId());
 
     }
