@@ -11,11 +11,10 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Data
 public class UserDto {
-    protected Long id = null;
-    @NotNull
-    protected String name = null;
+    private Long id;
+    private String name;
     @Email
     @NotNull
-    protected String email = null;
+    private String email;
 }
 

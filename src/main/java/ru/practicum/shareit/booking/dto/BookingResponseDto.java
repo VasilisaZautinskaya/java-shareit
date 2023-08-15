@@ -21,10 +21,8 @@ public class BookingResponseDto {
     private Long id;
 
     @FutureOrPresent
-    @NotNull
     private LocalDateTime start;
 
-    @NotNull
     @Future
     private LocalDateTime end;
 

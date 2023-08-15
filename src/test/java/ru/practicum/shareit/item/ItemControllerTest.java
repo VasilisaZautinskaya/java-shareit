@@ -83,7 +83,7 @@ public class ItemControllerTest {
         Assertions.assertThat(resultItemDto.getId()).isEqualTo(item.getId());
         Assertions.assertThat(resultItemDto.getName()).isEqualTo(item.getName());
         Assertions.assertThat(resultItemDto.getAvailable()).isEqualTo(item.getAvailable());
-        Assertions.assertThat(resultItemDto.getOwner()).isEqualTo(item.getOwner());
+        Assertions.assertThat(resultItemDto.getOwner().getName()).isEqualTo(item.getOwner().getName());
         Assertions.assertThat(resultItemDto.getDescription()).isEqualTo(item.getDescription());
         Assertions.assertThat(resultItemDto.getRequestId()).isEqualTo(item.getRequest().getId());
         Assertions.assertThat(resultItemDto).isNotNull();
@@ -159,7 +159,7 @@ public class ItemControllerTest {
         Assertions.assertThat(resultItemDto.getId()).isEqualTo(item.getId());
         Assertions.assertThat(resultItemDto.getName()).isEqualTo(item.getName());
         Assertions.assertThat(resultItemDto.getAvailable()).isEqualTo(item.getAvailable());
-        Assertions.assertThat(resultItemDto.getOwner()).isEqualTo(item.getOwner());
+        Assertions.assertThat(resultItemDto.getOwner().getName()).isEqualTo(item.getOwner().getName());
         Assertions.assertThat(resultItemDto.getDescription()).isEqualTo(item.getDescription());
         Assertions.assertThat(resultItemDto.getRequestId()).isEqualTo(item.getRequest().getId());
         Assertions.assertThat(resultItemDto).isNotNull();

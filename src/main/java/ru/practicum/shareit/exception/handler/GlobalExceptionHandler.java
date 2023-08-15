@@ -14,7 +14,6 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(value = {ShareItApplicationException.class})
-    @ResponseBody
     ResponseEntity<ErrorResponse> handleException(ShareItApplicationException ex) {
         log.warn("Ошибка");
         return new ResponseEntity<>(
@@ -28,8 +27,8 @@ public class GlobalExceptionHandler {
 
     @NoArgsConstructor
     public static class ErrorResponse {
-        String error;
-        String errorClass;
+        private String error;
+        private String errorClass;
 
         public ErrorResponse(Class<?> entityClass, String message) {
             this.errorClass = entityClass.getSimpleName();

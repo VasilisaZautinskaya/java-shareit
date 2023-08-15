@@ -9,6 +9,8 @@ import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.testData.*;
 import ru.practicum.shareit.user.model.User;
@@ -39,8 +41,8 @@ public class ItemMapperTest {
     public void testToItemDto() {
         User user = UserTestData.getUserOne();
         ItemRequest request = ItemRequestTestData.getItemRequest(user);
-        Item item = ItemTestData.getItem(request);
-
+        ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(request);
+        Item item = new Item(1L, "ItemOne", "Item item", user, request, true);
         ItemDto itemDto = ItemMapper.toItemDto(item);
 
         Assertions.assertThat(item.getId()).isEqualTo(itemDto.getId());

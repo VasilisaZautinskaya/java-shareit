@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .owner(item.getOwner())
+                .owner(UserMapper.toUserDto(item.getOwner()))
                 .requestId(requestId)
                 .build();
     }

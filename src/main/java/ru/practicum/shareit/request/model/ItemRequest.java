@@ -27,11 +27,9 @@ public class ItemRequest {
     private Long id;
 
     @Column(name = "description")
-    @NotBlank
     private String description;
 
     @ManyToOne
-    @NotNull
     @JoinColumn(name = "requestor_id", referencedColumnName = "id")
     private User requestor;
 
