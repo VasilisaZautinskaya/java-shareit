@@ -33,6 +33,8 @@ public class BookingController {
             @RequestHeader(value = X_SHARER_USER_ID) Long userId
     ) {
 
+        log.info("Processing method create with params: userId = {}, bookingRequestDto = {}", userId, bookingRequestDto);
+
         Booking booking = BookingMapper.toBooking(
                 bookingRequestDto,
                 itemService.findById(bookingRequestDto.getItemId()),
@@ -49,7 +51,7 @@ public class BookingController {
             @RequestHeader(X_SHARER_USER_ID) Long userId,
             @RequestParam boolean approved
     ) {
-
+        log.info("Processing method approve with params: userId = {}, bookingId = {}, approved = {}", userId, bookingId, approved);
         Booking booking = bookingService.approve(bookingId, userId, approved);
         return BookingMapper.toBookingResponseDto(booking);
     }
@@ -59,6 +61,7 @@ public class BookingController {
             @PathVariable Long bookingId,
             @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
+        log.info("Processing method getById with params: userId = {}, bookingId = {}", userId, bookingId);
         Booking booking = bookingService.getById(bookingId, userId);
         return BookingMapper.toBookingResponseDto(booking);
     }
@@ -70,6 +73,7 @@ public class BookingController {
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {
+        log.info("Processing method getAllBookings with params: userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
         return bookingService.findAllBookings(userId, state, from, size);
     }
 
@@ -80,6 +84,7 @@ public class BookingController {
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {
+        log.info("Processing method getAllByOwner with params: userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
         return bookingService.findAllByOwner(userId, state, from, size);
     }
 }

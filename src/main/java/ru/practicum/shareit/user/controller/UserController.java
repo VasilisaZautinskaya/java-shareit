@@ -20,27 +20,29 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public @ResponseBody UserDto createUser(
+    public UserDto createUser(
             @Valid @RequestBody UserDto userDto
     ) {
+        log.info("Processing method create with params: userDto = {}", userDto);
         User user = UserMapper.toUser(userDto);
         User createdUser = userService.createUser(user);
         return UserMapper.toUserDto(createdUser);
     }
 
     @GetMapping("/{userId}")
-    public @ResponseBody UserDto getUserById(
+    public UserDto getUserById(
             @PathVariable Long userId
     ) {
+        log.info("Processing method getUserById with params: userId = {}", userId);
         return UserMapper.toUserDto(userService.findById(userId));
     }
 
     @PatchMapping("/{userId}")
-    public @ResponseBody UserDto update(
+    public UserDto update(
             @PathVariable Long userId,
             @RequestBody UserDto userDto
     ) {
-
+        log.info("Processing method update with params: userId = {}, userDto = {}", userId, userDto);
         User user = UserMapper.toUser(userDto);
         User updateUser = userService.update(userId, user);
 
@@ -53,7 +55,8 @@ public class UserController {
     }
 
     @GetMapping
-    public @ResponseBody List<UserDto> getAllUsers() {
+    public List<UserDto> getAllUsers() {
+        log.info("Processing method getAllUsers");
         return UserMapper.toUserDtoList(userService.getAllUsers());
     }
 }

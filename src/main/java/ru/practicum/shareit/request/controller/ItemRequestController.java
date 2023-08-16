@@ -30,10 +30,11 @@ public class ItemRequestController {
 
 
     @PostMapping
-    public @ResponseBody ItemRequestResponseDto create(
+    public ItemRequestResponseDto create(
             @Valid @RequestBody ItemRequestDto itemRequestDto,
             @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
+        log.info("Processing method create with params: userId = {}, itemRequestDto = {}", userId, itemRequestDto);
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(
                 itemRequestDto,
                 userService.findById(userId)
@@ -44,9 +45,10 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public @ResponseBody List<ItemRequestResponseDto> getById(
+    public List<ItemRequestResponseDto> getById(
             @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
+        log.info("Processing method getById with params: userId = {}", userId);
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequest(userId);
         List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequests
@@ -61,9 +63,10 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public @ResponseBody List<ItemRequestResponseDto> getAllItemRequests(@RequestHeader(value = X_SHARER_USER_ID) Long userId,
-                                                                         @RequestParam(defaultValue = "0") int from,
-                                                                         @RequestParam(defaultValue = "10") int size) {
+    public List<ItemRequestResponseDto> getAllItemRequests(@RequestHeader(value = X_SHARER_USER_ID) Long userId,
+                                                           @RequestParam(defaultValue = "0") int from,
+                                                           @RequestParam(defaultValue = "10") int size) {
+        log.info("Processing method getAllItemRequests with params: userId = {},  from = {}, size = {}", userId, from, size);
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequests(userId, from, size);
         List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequests
@@ -78,7 +81,8 @@ public class ItemRequestController {
 
 
     @GetMapping("/{requestId}")
-    public @ResponseBody ItemRequestResponseDto findById(@PathVariable Long requestId, @RequestHeader(X_SHARER_USER_ID) Long userId) {
+    public ItemRequestResponseDto findById(@PathVariable Long requestId, @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        log.info("Processing method findById with params: userId = {}, requestId = {}", userId, requestId);
         ItemRequest itemRequest = itemRequestService.findById(requestId, userId);
         List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
         return ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);

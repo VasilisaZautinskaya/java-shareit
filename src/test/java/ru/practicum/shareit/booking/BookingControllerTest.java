@@ -16,9 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -56,35 +58,45 @@ public class BookingControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-//    @Test
-//    @SneakyThrows
-//    public void createBooking() {
-//        User requester = UserTestData.getUserOne();
-//        User owner = UserTestData.getUserTwo();
-//        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
-//        Item item = ItemTestData.getItemOne(itemRequest, owner);
-//        Booking booking = BookingTestData.getBookingOne(owner, item);
-//
-//        when(itemService.findById(item.getId())).thenReturn(item);
-//        when(userService.findById(owner.getId())).thenReturn(owner);
-//        when(bookingService.create(any(Booking.class))).thenReturn(booking);
-//
-//
-//        MvcResult result = mockMvc.perform(
-//                        MockMvcRequestBuilders.post("/bookings")
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .header(X_SHARER_USER_ID, owner.getId())
-//                                .content(objectMapper.writeValueAsString(booking))
-//                )
-//                .andDo(print())
-//                .andReturn();
-//
-//        String resultBookingRequest = result.getResponse().getContentAsString();
-//        BookingResponseDto bookingResponseDto = objectMapper.readValue(resultBookingRequest, BookingResponseDto.class);
-//
-//        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-//        Assertions.assertThat(bookingResponseDto.getId()).isEqualTo(booking.getId());
-//    }
+    @Test
+    @SneakyThrows
+    public void createBooking() {
+        LocalDateTime startDateTime = LocalDateTime.now().plusMinutes(1);
+        LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
+        User requester = UserTestData.getUserOne();
+        User owner = UserTestData.getUserTwo();
+        ItemRequest itemRequest = ItemRequestTestData.getItemRequest(requester);
+        Item item = ItemTestData.getItemOne(itemRequest, owner);
+        Booking booking = BookingTestData.getBookingOne(owner, item);
+        BookingRequestDto bookingRequestDto = new BookingRequestDto(
+                1L,
+                startDateTime,
+                endDateTime,
+                item.getId(),
+                owner.getId(),
+                BookingStatus.REJECTED
+        );
+
+        when(itemService.findById(item.getId())).thenReturn(item);
+        when(userService.findById(owner.getId())).thenReturn(owner);
+        when(bookingService.create(any(Booking.class))).thenReturn(booking);
+
+
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/bookings")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(X_SHARER_USER_ID, owner.getId())
+                                .content(objectMapper.writeValueAsString(bookingRequestDto))
+                )
+                .andDo(print())
+                .andReturn();
+
+        String resultBookingRequest = result.getResponse().getContentAsString();
+        BookingResponseDto bookingResponseDto = objectMapper.readValue(resultBookingRequest, BookingResponseDto.class);
+
+        Assertions.assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+        Assertions.assertThat(bookingResponseDto.getId()).isEqualTo(booking.getId());
+    }
 
     @Test
     @SneakyThrows
