@@ -89,6 +89,10 @@ public class ItemService {
         return itemRepository.findAll(userId);
     }
 
+    public List<Item> findAll() {
+        return itemRepository.findAll();
+    }
+
     public List<Item> findItemsByText(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();

@@ -8,7 +8,9 @@ import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemRequestMapper {
@@ -41,4 +43,16 @@ public class ItemRequestMapper {
                 .build();
     }
 
+    public static List<ItemRequestResponseDto> toItemRequestResponseDtoList(List<ItemRequest> itemRequests, List<Item> allItems) {
+        List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
+        for (ItemRequest itemRequest : itemRequests
+        ) {
+            List<Item> items = allItems.stream()
+                    .filter(item -> item.getRequest() != null && item.getRequest().getId().equals(itemRequest.getId()))
+                    .collect(Collectors.toList());
+            ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
+            itemRequestResponseDtoList.add(itemRequestResponseDto);
+        }
+        return itemRequestResponseDtoList;
+    }
 }

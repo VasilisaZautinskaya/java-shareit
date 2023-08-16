@@ -30,6 +30,11 @@ public class DbItemRepository implements ItemRepository {
     }
 
     @Override
+    public List<Item> findAll() {
+        return jpaItemRepository.findAll();
+    }
+
+    @Override
     public Item findById(Long itemId) {
 
         return jpaItemRepository.findById(itemId).orElse(null);

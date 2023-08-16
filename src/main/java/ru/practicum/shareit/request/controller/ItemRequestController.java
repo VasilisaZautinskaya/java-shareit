@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.Service.UserService;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,16 +51,9 @@ public class ItemRequestController {
     ) {
         log.info("Processing method getById with params: userId = {}", userId);
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequest(userId);
-        List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
-        for (ItemRequest itemRequest : itemRequests
-        ) {
-            List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
-            ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
-            itemRequestResponseDtoList.add(itemRequestResponseDto);
-        }
+        List<Item> allItems = itemService.findAll();
 
-        return itemRequestResponseDtoList;
-
+        return ItemRequestMapper.toItemRequestResponseDtoList(itemRequests, allItems);
     }
 
     @GetMapping("/all")
@@ -68,17 +62,10 @@ public class ItemRequestController {
                                                            @RequestParam(defaultValue = "10") int size) {
         log.info("Processing method getAllItemRequests with params: userId = {},  from = {}, size = {}", userId, from, size);
         List<ItemRequest> itemRequests = itemRequestService.findAllItemRequests(userId, from, size);
-        List<ItemRequestResponseDto> itemRequestResponseDtoList = new ArrayList<>();
-        for (ItemRequest itemRequest : itemRequests
-        ) {
-            List<Item> items = itemService.findAllItemForRequest(itemRequest.getId());
-            ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequest, items);
-            itemRequestResponseDtoList.add(itemRequestResponseDto);
-        }
+        List<Item> allItems = itemService.findAll();
 
-        return itemRequestResponseDtoList;
+        return ItemRequestMapper.toItemRequestResponseDtoList(itemRequests, allItems);
     }
-
 
     @GetMapping("/{requestId}")
     public ItemRequestResponseDto findById(@PathVariable Long requestId, @RequestHeader(X_SHARER_USER_ID) Long userId) {
