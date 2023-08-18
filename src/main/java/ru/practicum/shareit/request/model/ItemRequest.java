@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.request.model;
+package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -30,5 +31,7 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id", referencedColumnName = "id")
     private User requestor;
 
+    @Column(name = "created")
+    private LocalDateTime created;
 
 }

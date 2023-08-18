@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.controller;
 
-import lombok.AllArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -16,11 +17,12 @@ import java.util.List;
 
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
 @Slf4j
 public class BookingController {
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
     private final UserService userService;
     private final ItemService itemService;
@@ -28,13 +30,15 @@ public class BookingController {
     @PostMapping
     public BookingResponseDto create(
             @Valid @RequestBody BookingRequestDto bookingRequestDto,
-            @RequestHeader(value = "X-Sharer-User-Id") Long userId
+            @RequestHeader(value = X_SHARER_USER_ID) Long userId
     ) {
+
+        log.info("Processing method create with params: userId = {}, bookingRequestDto = {}", userId, bookingRequestDto);
 
         Booking booking = BookingMapper.toBooking(
                 bookingRequestDto,
-                itemService.getById(bookingRequestDto.getItemId()),
-                userService.getById(userId)
+                itemService.findById(bookingRequestDto.getItemId()),
+                userService.findById(userId)
         );
         Booking createdBooking = bookingService.create(booking);
         return BookingMapper.toBookingResponseDto(createdBooking);
@@ -44,10 +48,10 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public BookingResponseDto approve(
             @PathVariable Long bookingId,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @RequestParam boolean approved
     ) {
-
+        log.info("Processing method approve with params: userId = {}, bookingId = {}, approved = {}", userId, bookingId, approved);
         Booking booking = bookingService.approve(bookingId, userId, approved);
         return BookingMapper.toBookingResponseDto(booking);
     }
@@ -55,25 +59,32 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public BookingResponseDto getById(
             @PathVariable Long bookingId,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
+        log.info("Processing method getById with params: userId = {}, bookingId = {}", userId, bookingId);
         Booking booking = bookingService.getById(bookingId, userId);
         return BookingMapper.toBookingResponseDto(booking);
     }
 
     @GetMapping
     public List<BookingResponseDto> getAllBookings(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") String state
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return bookingService.getAllBookings(userId, state);
+        log.info("Processing method getAllBookings with params: userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
+        return bookingService.findAllBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getAllByOwner(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam(required = false, defaultValue = "ALL") String state
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return bookingService.getAllByOwner(userId, state);
+        log.info("Processing method getAllByOwner with params: userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
+        return bookingService.findAllByOwner(userId, state, from, size);
     }
 }

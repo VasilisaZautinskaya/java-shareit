@@ -2,11 +2,14 @@ package ru.practicum.shareit.exception;
 
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class ValidateException extends RuntimeException {
+public class ValidateException extends ShareItApplicationException {
     public ValidateException(String message) {
         super(message);
+    }
+
+    @Override
+    public HttpStatus getStatus() {
+        return HttpStatus.BAD_REQUEST;
     }
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -13,15 +14,12 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidateException;
 import ru.practicum.shareit.exception.WrongBookingStatus;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-
 
 @Slf4j
 @Service
@@ -29,21 +27,19 @@ import java.util.Objects;
 public class BookingService {
 
     private final JpaBookingRepository bookingRepository;
-    private final ItemRepository itemRepository;
     private final UserService userService;
-
 
     public Booking create(Booking booking) {
 
         validateThatBookerIsNotOwner(booking.getItem(), booking.getBooker());
         validateThatDateEndIsAfterDateStart(booking);
         validateThatItemIsAvailable(booking);
-        setDefauldStatusIfRequired(booking);
+        setDefaultStatusIfRequired(booking);
 
         return bookingRepository.save(booking);
     }
 
-    private void setDefauldStatusIfRequired(Booking booking) {
+    private void setDefaultStatusIfRequired(Booking booking) {
         if (booking.getStatus() == null) {
             booking.setStatus(BookingStatus.WAITING);
         }
@@ -109,9 +105,9 @@ public class BookingService {
     }
 
     private boolean isUserOwner(Booking booking, Long userId) {
-
         return Objects.equals(booking.getItem().getOwner().getId(), userId);
     }
+
 
     public List<Booking> findAllByBooker(Long userId) {
         if (userId == null) {
@@ -121,44 +117,56 @@ public class BookingService {
         return bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
     }
 
-    public List<BookingResponseDto> getAllByOwner(Long userId, String stateStr) {
-        userService.getById(userId);
+    public List<Booking> findAllByBooker(Long userId, int from, int size) {
+        if (userId == null) {
+            log.info("UserId не может быть null");
+            throw new NotFoundException("UserId не может быть null");
+        }
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByBookerIdOrderByStartDesc(
+                userId,
+                PageRequest.of(pageNum, size)
+        );
+    }
+
+    public List<BookingResponseDto> findAllByOwner(Long userId, String stateStr, int from, int size) {
+        userService.findById(userId);
         State state = getState(stateStr);
         switch (state) {
             case ALL:
-                return BookingMapper.toBookingResponseListDto(findAllByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllByOwner(userId, from, size));
             case CURRENT:
-                return BookingMapper.toBookingResponseListDto(findAllCurrentByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllCurrentByOwner(userId, from, size));
             case PAST:
-                return BookingMapper.toBookingResponseListDto(findAllPastByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllPastByOwner(userId, from, size));
             case FUTURE:
-                return BookingMapper.toBookingResponseListDto(findAllFutureByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllFutureByOwner(userId, from, size));
             case WAITING:
-                return BookingMapper.toBookingResponseListDto(findAllWaitingByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllWaitingByOwner(userId, from, size));
             case REJECTED:
-                return BookingMapper.toBookingResponseListDto(findAllRejectedByOwner(userId));
+                return BookingMapper.toBookingResponseListDto(findAllRejectedByOwner(userId, from, size));
             default:
                 throw new WrongBookingStatus(stateStr);
         }
 
     }
 
-    public List<BookingResponseDto> getAllBookings(Long userId, String stateStr) {
-        userService.getById(userId);
+    public List<BookingResponseDto> findAllBookings(Long userId, String stateStr, int from, int size) {
+        userService.findById(userId);
         State state = getState(stateStr);
         switch (state) {
             case ALL:
-                return BookingMapper.toBookingResponseListDto(findAllByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllByBooker(userId, from, size));
             case CURRENT:
-                return BookingMapper.toBookingResponseListDto(findAllCurrentByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllCurrentByBooker(userId, from, size));
             case PAST:
-                return BookingMapper.toBookingResponseListDto(findAllPastByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllPastByBooker(userId, from, size));
             case FUTURE:
-                return BookingMapper.toBookingResponseListDto(findAllFutureByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllFutureByBooker(userId, from, size));
             case WAITING:
-                return BookingMapper.toBookingResponseListDto(findAllWaitingByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllWaitingByBooker(userId, from, size));
             case REJECTED:
-                return BookingMapper.toBookingResponseListDto(findAllRejectedByBooker(userId));
+                return BookingMapper.toBookingResponseListDto(findAllRejectedByBooker(userId, from, size));
             default:
                 throw new WrongBookingStatus(stateStr);
         }
@@ -180,59 +188,126 @@ public class BookingService {
     }
 
 
-    public List<Booking> findAllCurrentByBooker(Long userId) {
+    public List<Booking> findAllCurrentByBooker(Long userId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                userId,
+                now,
+                now,
+                PageRequest.of(pageNum, size));
     }
 
-    public List<Booking> findAllPastByBooker(Long userId) {
+
+    public List<Booking> findAllPastByBooker(Long userId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now);
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now, PageRequest.of(pageNum, size));
     }
 
-    public List<Booking> findAllFutureByBooker(Long userId) {
+
+    public List<Booking> findAllFutureByBooker(Long userId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, now);
+        int pageNum = getPageNum(from, size);
+        return bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                userId,
+                now,
+                PageRequest.of(pageNum, size));
     }
 
-    public List<Booking> findAllWaitingByBooker(Long userId) {
-        return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+    private int getPageNum(int from, int size) {
+        int pageNum = getNum(from, size);
+        return pageNum;
     }
 
-    public List<Booking> findAllRejectedByBooker(Long userId) {
-        return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+
+    public List<Booking> findAllWaitingByBooker(Long userId, int from, int size) {
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                userId,
+                BookingStatus.WAITING,
+                PageRequest.of(pageNum, size)
+        );
     }
 
-    public List<Booking> findAllByOwner(Long ownerId) {
+
+
+    public List<Booking> findAllRejectedByBooker(Long userId, int from, int size) {
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                userId,
+                BookingStatus.REJECTED,
+                PageRequest.of(pageNum, size)
+        );
+    }
+
+
+
+    public List<Booking> findAllByOwner(Long ownerId, int from, int size) {
         if (ownerId == null) {
             log.info("UserId не может быть null");
             throw new NotFoundException("UserId не может быть null");
         }
-        return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByItemOwnerIdOrderByStartDesc(
+                ownerId,
+                PageRequest.of(pageNum, size)
+        );
     }
 
 
-    public List<Booking> findAllCurrentByOwner(Long ownerId) {
+
+
+    public List<Booking> findAllCurrentByOwner(Long ownerId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                ownerId,
+                now,
+                now,
+                PageRequest.of(pageNum, size)
+        );
     }
 
-    public List<Booking> findAllPastByOwner(Long ownerId) {
+
+
+    public List<Booking> findAllPastByOwner(Long ownerId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now);
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, now, PageRequest.of(pageNum, size));
     }
 
-    public List<Booking> findAllFutureByOwner(Long ownerId) {
+
+    public List<Booking> findAllFutureByOwner(Long ownerId, int from, int size) {
         LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now);
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, now, PageRequest.of(pageNum, size));
     }
 
-    public List<Booking> findAllWaitingByOwner(Long ownerId) {
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+
+
+    public List<Booking> findAllWaitingByOwner(Long ownerId, int from, int size) {
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(
+                ownerId,
+                BookingStatus.WAITING,
+                PageRequest.of(pageNum, size)
+        );
     }
 
-    public List<Booking> findAllRejectedByOwner(Long ownerId) {
-        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+
+    public List<Booking> findAllRejectedByOwner(Long ownerId, int from, int size) {
+        int pageNum = getNum(from, size);
+        return bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartAsc(ownerId, BookingStatus.REJECTED, PageRequest.of(pageNum, size));
+    }
+
+    private int getNum(int from, int size) {
+        if (size < 1 || from < 0) {
+            log.info("Неверный номер страницы");
+            throw new ValidateException("Неверный номер страницы");
+        }
+        int pageNum = from / size;
+        return pageNum;
     }
 
     public Booking getLastBookingForItem(Long itemId) {

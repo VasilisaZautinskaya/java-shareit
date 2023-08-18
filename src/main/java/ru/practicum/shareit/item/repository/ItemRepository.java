@@ -13,7 +13,14 @@ public interface ItemRepository {
 
     List<Item> findAll(Long userId);
 
+    List<Item> findAll();
+
     Item findById(Long itemId);
 
     List<Item> getSearch(String text);
+
+    List<Item> findAllByRequestId(Long requestId);
+
+
+
 }

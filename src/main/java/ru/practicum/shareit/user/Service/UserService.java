@@ -25,7 +25,7 @@ public class UserService {
 
         validateThatEmailIsFree(userId, user);
 
-        User oldUser = userRepository.findById(userId);
+        User oldUser = findById(userId);
 
         if (userId == null) {
             return user;
@@ -54,7 +54,7 @@ public class UserService {
     }
 
 
-    public User getById(Long userId) {
+    public User findById(Long userId) {
         User user = userRepository.findById(userId);
         if (user == null) {
             log.info("Пользователь не найден");

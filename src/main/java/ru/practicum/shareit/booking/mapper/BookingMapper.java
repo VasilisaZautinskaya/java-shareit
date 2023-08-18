@@ -16,30 +16,18 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class BookingMapper {
-    public static Booking toBooking(BookingRequestDto booking, Item item, User user) {
+    public static Booking toBooking(BookingRequestDto booking, Item item, User booker) {
         return Booking.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
                 .item(item)
-                .booker(user)
+                .booker(booker)
                 .status(BookingStatus.WAITING)
                 .build();
     }
 
-    public static BookingRequestDto toBookingDto(Booking booking) {
-        if (booking == null) {
-            return null;
-        }
-        return BookingRequestDto.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .itemId(booking.getItem().getId())
-                .bookerId(booking.getBooker().getId())
-                .status(booking.getStatus())
-                .build();
-    }
+
 
     public static BookingResponseDto toBookingResponseDto(Booking booking) {
         if (booking == null) {
@@ -56,8 +44,8 @@ public class BookingMapper {
     }
 
 
-    public static List<BookingResponseDto> toBookingResponseListDto(List<Booking> allByUser) {
-        return allByUser.stream()
+    public static List<BookingResponseDto> toBookingResponseListDto(List<Booking> bookings) {
+        return bookings.stream()
                 .map(BookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
     }

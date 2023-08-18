@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
-import ru.practicum.shareit.item.mapper.CommentMaper;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -27,36 +27,40 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemController {
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
     private final BookingService bookingService;
 
     @PostMapping
-    public @ResponseBody ItemDto createItem(
+    public ItemDto createItem(
             @Valid @RequestBody ItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
-
+        log.info("Processing method create with params: userId = {}, itemDto = {}", userId, itemDto);
         Item item = ItemMapper.toItem(itemDto);
-        Item createdItem = itemService.createItem(item, userId);
+        Long requestId = itemDto.getRequestId();
+        Item createdItem = itemService.createItem(item, userId, requestId);
         return ItemMapper.toItemDto(createdItem);
     }
 
     @GetMapping("/{itemId}")
-    public @ResponseBody ItemWithBookingDto getItemById(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemWithBookingDto getItemById(
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @PathVariable Long itemId
     ) {
-        Item item = itemService.getById(itemId);
+        log.info("Processing method getItemById with params: userId = {}, itemId = {}", userId, itemId);
+        Item item = itemService.findById(itemId);
         List<Comment> comments = itemService.findAllByItemId(itemId);
         return toItemWithBookingDto(userId, item, comments);
     }
 
     @PatchMapping("/{itemId}")
-    public @ResponseBody ItemDto update(
+    public ItemDto update(
             @PathVariable Long itemId,
             @Valid @RequestBody UpdateItemDto itemDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
+        log.info("Processing method update with params: userId = {}, itemId = {}, updateItemDto = {}", userId, itemId, itemDto);
         Item item = ItemMapper.toItem(itemDto);
         Item updatedItem = itemService.update(itemId, item, userId);
         return ItemMapper.toItemDto(updatedItem);
@@ -68,9 +72,10 @@ public class ItemController {
     }
 
     @GetMapping
-    public @ResponseBody List<ItemWithBookingDto> getAllItems(
-            @RequestHeader("X-Sharer-User-Id") Long userId
+    public List<ItemWithBookingDto> getAllItems(
+            @RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
+        log.info("Processing method getAllItems with params: userId = {}", userId);
         List<ItemWithBookingDto> allItemDto = itemService.findAll(userId).stream()
                 .map(item -> toItemWithBookingDto(userId, item, Collections.emptyList()))
                 .collect(Collectors.toList());
@@ -88,21 +93,23 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public @ResponseBody List<ItemDto> findItemByParams(
+    public List<ItemDto> findItemByParams(
             @RequestParam String text
     ) {
-        return ItemMapper.toItemDtoList(itemService.getItemsByText(text));
+        log.info("Processing method findItemByParams with params: text = {}", text);
+        return ItemMapper.toItemDtoList(itemService.findItemsByText(text));
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto postComment(
             @PathVariable Long itemId,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId,
             @Valid @RequestBody CommentDto commentDto
     ) {
-        Comment comment = CommentMaper.toComment(commentDto);
+        log.info("Processing method postComment with params: itemId= {}, userId = {}, commentDto = {}", itemId, userId, commentDto);
+        Comment comment = CommentMapper.toComment(commentDto);
         Comment postComment = itemService.postComment(itemId, userId, comment);
-        return CommentMaper.toCommentDto(postComment);
+        return CommentMapper.toCommentDto(postComment);
     }
 
 }

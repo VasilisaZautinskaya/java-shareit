@@ -12,6 +12,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.Service.UserService;
 import ru.practicum.shareit.user.model.User;
 
@@ -29,9 +30,14 @@ public class ItemService {
     private final CommentRepository commentRepository;
     private final BookingService bookingService;
 
+    private final ItemRequestService itemRequestService;
 
-    public Item createItem(Item item, Long userId) {
-        item.setOwner(userService.getById(userId));
+
+    public Item createItem(Item item, Long ownerId, Long requestId) {
+        item.setOwner(userService.findById(ownerId));
+        if (requestId != null) {
+            item.setRequest(itemRequestService.findByIdSilent(requestId));
+        }
         return itemRepository.save(item);
     }
 
@@ -69,7 +75,7 @@ public class ItemService {
     }
 
 
-    public Item getById(Long itemId) {
+    public Item findById(Long itemId) {
 
         Item item = itemRepository.findById(itemId);
         if (item == null) {
@@ -83,22 +89,26 @@ public class ItemService {
         return itemRepository.findAll(userId);
     }
 
-    public List<Item> getItemsByText(String text) {
+    public List<Item> findAll() {
+        return itemRepository.findAll();
+    }
+
+    public List<Item> findItemsByText(String text) {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
         return itemRepository.getSearch(text);
     }
 
-    public Comment postComment(Long itemId, Long userId, Comment comment) {
+    public Comment postComment(Long itemId, Long authorId, Comment comment) {
 
-        User user = userService.getById(userId);
-        Item item = getById(itemId);
+        User author = userService.findById(authorId);
+        Item item = findById(itemId);
 
-        validateThatUserHadBookedItem(user, item);
+        validateThatUserHadBookedItem(author, item);
 
         comment.setItem(item);
-        comment.setAuthor(user);
+        comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());
         return commentRepository.save(comment);
     }
@@ -114,4 +124,7 @@ public class ItemService {
         return commentRepository.findAllByItemId(itemId);
     }
 
+    public List<Item> findAllItemForRequest(Long requestId) {
+        return itemRepository.findAllByRequestId(requestId);
+    }
 }
