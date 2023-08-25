@@ -21,7 +21,6 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 @Slf4j
 public class BookingController {
-
     public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
     private final UserService userService;
@@ -43,7 +42,6 @@ public class BookingController {
         Booking createdBooking = bookingService.create(booking);
         return BookingMapper.toBookingResponseDto(createdBooking);
     }
-
 
     @PatchMapping("/{bookingId}")
     public BookingResponseDto approve(
