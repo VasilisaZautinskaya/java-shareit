@@ -2,71 +2,73 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
-@RestController
+@Controller
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
 public class BookingController {
-
     private final BookingClient bookingClient;
     public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
-    @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> approve(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                          @PathVariable("bookingId") Long bookingId,
-                                          @RequestParam @NotNull Boolean approved) {
-
-        log.debug("Processing method approve with params: userId = {}, bookingId = {}, approved = {}", userId, bookingId, approved);
-        return bookingClient.approveBooking(userId, bookingId, approved);
-    }
-
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public ResponseEntity<Object> getAllBookings(@RequestHeader(X_SHARER_USER_ID) long bookerId,
-                                                 @RequestParam(name = "state", defaultValue = "ALL") String stateParam,
-                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size
-    ) {
+    public ResponseEntity<Object> getAllBooking(@NotNull @RequestHeader(X_SHARER_USER_ID) Long userId,
+                                                @RequestParam(name = "state", defaultValue = "all") String stateParam,
+                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         State state = State.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-        log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, bookerId, from, size);
-        return bookingClient.getAllByBookerId(bookerId, state, from, size);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Unknown state: %s", stateParam)));
+        log.info("Processing method getAllBookings with params: userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
+        return bookingClient.getAllBooking(userId, state, from, size);
     }
 
-    @GetMapping({"/owner"})
-    public ResponseEntity<Object> getAllByOwner(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                @RequestParam(name = "state", defaultValue = "ALL") String stateParam,
-                                                @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                @RequestParam(name = "size", defaultValue = "10") Integer size
-    ) {
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/owner")
+    public ResponseEntity<Object> getAllByOwner(@NotNull @RequestHeader(X_SHARER_USER_ID) Long userId,
+                                                @RequestParam(name = "state", defaultValue = "all") String stateParam,
+                                                @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         State state = State.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-        log.debug("Bookings by owner with id {} requested", userId);
-        return bookingClient.getAllByOwnerId(userId, state, from, size);
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Unknown state: %s", stateParam)));
+        log.info("Processing method getAllByOwner with params: userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
+        return bookingClient.getAllByOwner(userId, state, from, size);
     }
 
-
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<Object> bookItem(@RequestHeader(X_SHARER_USER_ID) long userId,
-                                           @RequestBody @Valid BookItemRequestDto requestDto) {
-        log.info("Creating booking {}, userId={}", requestDto, userId);
+    public ResponseEntity<Object> bookItem(@NotNull @RequestHeader(X_SHARER_USER_ID) Long userId,
+                                           @RequestBody @Valid BookingDto requestDto) {
+        log.info("Proccesing method bookItem with params: booking {}, userId={}", requestDto, userId);
         return bookingClient.bookItem(userId, requestDto);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getById(@RequestHeader(X_SHARER_USER_ID) long userId,
+    public ResponseEntity<Object> getById(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                           @PathVariable Long bookingId) {
-        log.info("Get booking {}, userId={}", bookingId, userId);
-        return bookingClient.getBooking(userId, bookingId);
+        log.info("Processing method getById with params: userId = {}, bookingId = {}", userId, bookingId);
+        return bookingClient.getById(userId, bookingId);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping("/{bookingId}")
+    public ResponseEntity<Object> approve(@PathVariable Long bookingId,
+                                          @NotNull @RequestParam(name = "approved") Boolean approved,
+                                          @NotNull @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        log.info("Processing method approve with params: userId = {}, bookingId = {}, approved = {}", userId, bookingId, approved);
+        return bookingClient.approve(bookingId, approved, userId);
     }
 }

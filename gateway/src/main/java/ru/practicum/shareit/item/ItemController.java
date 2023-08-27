@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.CommentDto;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @RequestMapping("/items")
@@ -24,34 +22,34 @@ public class ItemController {
     public ResponseEntity<Object> getAllItems(@RequestHeader(X_SHARER_USER_ID) Long userId
     ) {
         log.info("Processing method getAllItems with params: userId = {}", userId);
-        return itemClient.getAll(userId);
+        return itemClient.getAllItems(userId);
     }
 
     @GetMapping({"/{itemId}"})
-    public ResponseEntity<Object> getItemByIdr(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                          @PathVariable("itemId") Long itemId) {
-        log.debug("Item with Id {} requested", itemId);
-        return itemClient.getItem(userId, itemId);
+    public ResponseEntity<Object> getItemById(@RequestHeader(X_SHARER_USER_ID) Long userId,
+                                              @PathVariable("itemId") Long itemId) {
+        log.info("Processing method getItemById with params: userId = {}, itemId = {}", userId, itemId);
+        return itemClient.getItemById(userId, itemId);
     }
 
     @PostMapping
-    public ResponseEntity<Object> create(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                          @RequestBody @Valid ItemDto itemDto) {
-        log.debug("Create item requested");
-        return itemClient.addItem(userId, itemDto);
+    public ResponseEntity<Object> create(@Valid @RequestBody ItemDto itemDto,
+                                         @RequestHeader(X_SHARER_USER_ID) long userId
+    ) {
+        log.info("Processing method create with params: userId = {}, itemDto = {}", userId, itemDto);
+        return itemClient.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> updateItem(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                         @PathVariable("itemId") Long itemId,
-                                         @RequestBody ItemDto itemDto) {
+    public ResponseEntity<Object> updateItem(@RequestHeader(X_SHARER_USER_ID) long userId,
+                                             @PathVariable("itemId") Long itemId,
+                                             @Valid @RequestBody UpdateItemDto itemDto) {
         log.debug("Update item with id {} requested", itemId);
         return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @DeleteMapping("/{itemId}")
-    public void deleteItem(@RequestHeader(X_SHARER_USER_ID) Long userId, @PathVariable Long itemId) {
-        log.debug("Delete item with id {} requested", itemId);
+    public void deleteItem(@RequestHeader(X_SHARER_USER_ID) long userId, @PathVariable Long itemId) {
         itemClient.deleteItem(userId, itemId);
     }
 
@@ -60,16 +58,16 @@ public class ItemController {
             @RequestParam String text
     ) {
         log.info("Processing method findItemByParams with params: text = {}", text);
-        return itemClient.searchForItems(text);
+        return itemClient.findItemByParams(text);
     }
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> postComment(
-            @RequestHeader(X_SHARER_USER_ID) Long userId,
+            @RequestHeader(X_SHARER_USER_ID) long userId,
             @PathVariable Long itemId,
             @RequestBody @Valid CommentDto commentDto) {
         log.info("Processing method postComment with params: itemId= {}, userId = {}, commentDto = {}", itemId, userId, commentDto);
-        return itemClient.addNewComment(userId, itemId, commentDto);
+        return itemClient.postComment(userId, itemId, commentDto);
     }
 
 }

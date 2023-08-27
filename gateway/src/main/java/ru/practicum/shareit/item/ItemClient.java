@@ -26,41 +26,38 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getAll(Long userId) {
+    public ResponseEntity<Object> getAllItems(Long userId) {
         return get("/", userId);
     }
 
 
-    public ResponseEntity<Object> addItem(Long userId, ItemDto itemDto) {
-        return post("", userId, itemDto);
+    public ResponseEntity<Object> create(long userId, ItemDto itemDto) {
+        return post("/", userId, itemDto);
     }
 
-    public ResponseEntity<Object> getItem(Long userId, Long itemId) {
+    public ResponseEntity<Object> getItemById(long userId, Long itemId) {
         Map<String, Object> parameters = Map.of(
                 "itemId", itemId
         );
         return get("/" + itemId, userId, parameters);
     }
 
-    public ResponseEntity<Object> updateItem(Long userId, Long itemId, ItemDto itemDto) {
-        Map<String, Object> parameters = Map.of(
-                "itemId", itemId
-        );
-        return patch("/" + itemId, userId, parameters, itemDto);
+    public ResponseEntity<Object> updateItem(long userId, Long itemId, UpdateItemDto itemDto) {
+        return patch("/" + itemId, userId, itemDto);
     }
 
-    public ResponseEntity<Object> deleteItem(Long userId, Long itemId) {
+    public ResponseEntity<Object> deleteItem(long userId, Long itemId) {
         Map<String, Object> parameters = Map.of(
                 "itemId", itemId
         );
         return delete("/" + itemId, userId, parameters);
     }
 
-    public ResponseEntity<Object> searchForItems(String text) {
-        return get("/" + text);
+    public ResponseEntity<Object> findItemByParams(String text) {
+        return get(String.format("/search?text=%s", text));
     }
 
-    public ResponseEntity<Object> addNewComment(Long userId, Long itemId, CommentDto commentDto) {
+    public ResponseEntity<Object> postComment(long userId, Long itemId, CommentDto commentDto) {
         return post("/" + itemId + "/comment", userId, commentDto);
     }
 }
