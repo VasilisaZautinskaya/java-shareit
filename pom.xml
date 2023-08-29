@@ -91,6 +91,7 @@
                         </execution>
                     </executions>
                     <dependencies>
+
                         <dependency>
                             <groupId>org.hamcrest</groupId>
                             <artifactId>hamcrest</artifactId>
